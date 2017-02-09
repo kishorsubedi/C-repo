@@ -1,0 +1,62 @@
+#include <iostream>       // include input/output library code
+#include <iomanip>  //for set precision
+#include <fstream>                // include string manipulate library code
+#include <string>
+using namespace std;                       // allows all of the names in a namespace 
+                                           // to be accessed without the namespace 
+                                           // identifier as a qualifier
+ 
+int main()
+{ 
+    cout<< fixed<< showpoint ;
+    cout<< "Kishor Subedi" << endl;
+    cout<< "ID: @02822582 " << endl;
+    cout<< "SYCS-135 Computer Science-1 " << endl;
+    cout<< "Assignment 4" << endl;
+    cout<< "February 2, 2017" << endl;
+    cout<< "***************************************\n"<< endl;
+    cout<< "       GPA REPORT \n"<< endl;
+    cout<< "   Name       Class   QP   Credits  GPA" <<endl;
+    ifstream myfile;          //Declare file input object 
+    myfile.open ("infile.txt");  //Open file
+    string c,d ; //Declaring type of c,d,l,r,s
+    char l;
+    int r,s;
+ 
+    myfile >> c >> d >> l>> r>> s; //reads first line of myfile and stores in corresponding variables
+    cout << c << " " << d << "      " << l << "     " <<  r << "       " << s << "    " ;  
+    float GPA= (float)r/s;
+    cout << setprecision(2) << GPA << endl; //couts the line as in myfile with GPA
+ 
+ 
+    myfile >> c >> d >> l>> r>> s;
+    cout << c << " " << d << "     " << l << "     " <<  r << "       " << s << "    " ; 
+    GPA= (float)r/s;
+    cout << setprecision(2) << GPA << endl;
+ 
+    myfile >> c >> d >> l>> r>> s;
+    cout << c << " " << d << "   " << l << "     " <<  r << "       " << s << "    " ; 
+    GPA= (float)r/s;
+    cout << setprecision(2) << GPA << endl;
+ 
+    myfile.close(); //closes the reading of myfile
+    cout<< "***************************************" << endl;
+    return 0;
+}
+/*
+Kishor Subedi
+ID: @02822582
+SYCS-135 Computer Science-1
+Assignment 4
+February 2, 2017
+***************************************
+ 
+       GPA REPORT
+ 
+   Name       Class   QP   Credits  GPA
+Joe Smith      S     40       12    3.33
+Fred Davis     F     35       14    2.50
+June Freeman   J     40       10    4.00
+***************************************
+Press any key to continue . . .
+*/
