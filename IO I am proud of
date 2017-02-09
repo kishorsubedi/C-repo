@@ -1,0 +1,90 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+using namespace std;
+ 
+void heading();
+float Class_average(float);
+float Student_average(float);
+ 
+int main()
+{
+  heading();
+  ifstream myfile;
+  cout<< fixed << showpoint ;
+  myfile.open("infile.txt");
+  float a,b,c,d,total ;
+  myfile>> a >> b>> c>> d ;
+  float St1,St2,St3,St4;
+  St1=a;
+  St2=b;
+  St3=c;
+  St4=d; 
+  total = a+b+c+d;
+  cout<< setw(7)<< "Algebra" << setw(10)<< setprecision(1)<< a << setw(10) << setprecision(1)<< b << setw(10) << setprecision(1) << c << setw(10) << setprecision(1) << d << setw(10)<< setprecision(1) << total << setw(10)<< setprecision(1)<< Class_average(total) << endl;
+   
+  myfile>> a >> b>> c>> d ;
+  St1+=a;
+  St2+=b;
+  St3+=c;
+  St4+=d;
+  total = a+b+c+d;
+  cout<< setw(7)<< "Cs1" << setw(10)<< setprecision(1)<< a << setw(10) << setprecision(1)<< b << setw(10) << setprecision(1) << c << setw(10) << setprecision(1) << d << setw(10)<< setprecision(1) << total << setw(10)<< setprecision(1)<< Class_average(total) << endl;
+   
+  myfile>> a >> b>> c>> d ;
+  St1+=a;
+  St2+=b;
+  St3+=c;
+  St4+=d;
+  total = a+b+c+d;
+  cout<< setw(7)<< "English" << setw(10)<< setprecision(1)<< a << setw(10) << setprecision(1)<< b << setw(10) << setprecision(1) << c << setw(10) << setprecision(1) << d << setw(10)<< setprecision(1) << total << setw(10)<< setprecision(1)<< Class_average(total) << endl;
+   
+  myfile>> a >> b>> c>> d ;
+  St1+=a;
+  St2+=b;
+  St3+=c;
+  St4+=d;
+  total = a+b+c+d;
+  cout<< setw(7)<< "Science" << setw(10)<< setprecision(1)<< a << setw(10) << setprecision(1)<< b << setw(10) << setprecision(1) << c << setw(10) << setprecision(1) << d << setw(10)<< setprecision(1) << total << setw(10)<< setprecision(1)<< Class_average(total) << "\n" << endl;
+   
+  cout<< setw(7) << "Average" << setw(10)<< Student_average(St1)<< setw(10)<< Student_average(St2)<< setw(10)<< Student_average(St3)<< setw(10)<< Student_average(St4) << endl;
+  return 0;
+}
+   
+void heading()
+{
+  string date;
+  cout<< "What is today's date? <ex. May 1,2010 = 5/1/10>: \n";
+  cin>> date;
+  cout<< "DATE " << date << "***************************************** Page 1" << endl<< endl;
+  cout<< "*****************" << "SMALL COLLEGE GRADE REPORT" << "******************\n" << endl;
+  cout<< fixed << showpoint ;
+  cout<< setw(18)<< "Angela" << setw(10)<< "Langston"<< setw(8)<< "Maya" << setw(10)<< "Malcolm"<< setw(13) << "Class Total" << setw(15) << "Class Average\n" ;
+}
+ 
+float Class_average(float x)
+{
+  return x/4.0;
+}
+ 
+float Student_average(float x){
+  return x/4;
+}
+ 
+/* gcc version 4.6.3
+    
+What is today's date? <ex. May 1,2010 = 5/1/10>: 
+ 2/8/16
+DATE 2/8/16***************************************** Page 1
+ 
+*****************SMALL COLLEGE GRADE REPORT******************
+ 
+            Angela  Langston    Maya   Malcolm  Class Total Class Average
+Algebra      64.5      56.7      67.4      90.0     278.6      69.7
+    Cs1      88.6      77.0      55.3      89.4     310.3      77.6
+English      91.3      67.4      89.0     100.0     347.7      86.9
+Science     100.0      89.4      80.2      91.4     361.0      90.2
+ 
+Average      86.1      72.6      73.0      92.7
+*/
