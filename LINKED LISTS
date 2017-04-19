@@ -1,0 +1,40 @@
+
+#include <iostream>
+using namespace std;
+
+typedef float valuetype;
+struct nodetype
+{
+  valuetype data;
+  nodetype* next;
+};
+
+typedef nodetype* pointer;
+ 
+pointer head; //head is a pointer that points to a nodetype object.
+pointer temp;
+pointer curr;
+
+
+int main()
+{
+  head = new nodetype; //head points to a dynamic nodetype object
+  curr = head; //curr points to the object head is pointing to.
+  head -> data = 12.8; // *head(object pointed at).data is set to 12.8
+  cout<< head -> data << endl;
+  
+  temp = new nodetype; //temp points to another dynamic nodetype object
+  curr -> next = temp; // *curr(previous node).next holds the address the temp has i.e the new nodetype object
+  curr = head -> next; //curr pointer is changed to new object
+  curr -> data = 45.2 ; //curr pointer's new node has data 45.2
+  cout<< curr -> data << endl;
+  
+  temp = new nodetype;
+  temp -> data = 70.1 ;
+  curr -> next = temp;
+  curr = curr -> next;
+  cout << temp -> data << endl;
+  cout<< curr -> data << endl;
+  
+  return 0;
+}
