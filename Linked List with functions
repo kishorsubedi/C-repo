@@ -1,0 +1,50 @@
+#include <iostream>
+using namespace std;
+
+struct node
+{
+  int data;
+  node* next;
+};
+
+typedef node* nodeptr;
+
+nodeptr head;
+nodeptr curr;
+nodeptr temp;
+
+void addfunction(int x);
+void display_function();
+
+int main()
+{
+  head = new node;
+  head -> data = 1;
+  curr = head;
+  addfunction(2);
+  addfunction(3);
+  curr -> next = NULL ;
+  
+  display_function();
+  return 0;
+}
+
+void addfunction(int x)
+{
+  temp = new node;
+  temp -> data = x;
+  curr -> next = temp;
+  curr = curr -> next;
+  
+}
+
+void display_function()
+{
+  curr = head;
+  while(curr -> next != NULL)
+  {
+    cout<< curr -> data << endl;
+    curr = curr -> next;
+  }
+  cout<< curr -> data << endl;
+}
