@@ -15,6 +15,7 @@ nodeptr temp;
 
 void addfunction(int x);
 void display_function();
+void delete_function(int deldata);
 
 int main()
 {
@@ -24,7 +25,8 @@ int main()
   addfunction(2);
   addfunction(3);
   curr -> next = NULL ;
-  
+  display_function();
+  delete_function(2);
   display_function();
   return 0;
 }
@@ -48,3 +50,29 @@ void display_function()
   }
   cout<< curr -> data << endl;
 }
+
+void delete_function(int deldata)
+{
+  nodeptr delptr;
+  curr = head;
+  while (curr -> data != deldata && curr != NULL)
+  {
+    temp = curr;
+    curr = curr -> next;
+  }
+  if (curr == NULL)
+  {
+    cout<< "NOT FOUND" << endl;
+  }
+  else
+  { 
+    delptr = curr;
+    curr = curr -> next;
+    temp -> next = curr;
+    delete delptr;
+  }
+}
+
+
+
+
