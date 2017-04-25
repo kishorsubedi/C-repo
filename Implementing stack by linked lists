@@ -1,0 +1,75 @@
+#include <iostream>
+using namespace std;
+
+struct node
+{
+  int data;
+  node* next;
+};
+
+typedef node* nodeptr;
+
+nodeptr head;
+nodeptr curr;
+nodeptr temp;
+
+void addfunction(int x);
+void display_function();
+void delete_function(int deldata);
+
+int main()
+{
+  head = new node;
+  head -> data = 1;
+  head -> next = NULL;
+  curr = head;
+  
+  addfunction(2);
+  addfunction(3);
+  addfunction(4);
+  addfunction(5);
+  addfunction(6);
+  addfunction(7);
+  
+  display_function();
+  
+  return 0;
+}
+
+void addfunction(int x)
+{
+  temp = new node;
+  temp -> data = x;
+  temp -> next = curr;
+  curr = temp;
+  
+}
+
+void display_function()
+{
+  
+  while(curr -> next != NULL)
+  {
+    cout<< curr -> data << endl;
+    curr = curr -> next;
+  }
+  cout<< curr -> data << endl;
+}
+
+
+
+// Prints 
+7
+6
+5
+4
+3
+2
+1 // LIFO
+
+
+
+
+
+
+
