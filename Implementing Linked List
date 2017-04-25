@@ -24,7 +24,7 @@ int main()
   curr = head;
   addfunction(2);
   addfunction(3);
-  curr -> next = NULL ;
+  
   display_function();
   delete_function(2);
   display_function();
@@ -37,7 +37,7 @@ void addfunction(int x)
   temp -> data = x;
   curr -> next = temp;
   curr = curr -> next;
-  
+  curr -> next = NULL ;
 }
 
 void display_function()
