@@ -16,6 +16,7 @@ nodeptr temp;
 void addfunction(int x);
 void display_function();
 void delete_function(int deldata);
+void pop();
 
 int main()
 {
@@ -31,7 +32,8 @@ int main()
   addfunction(6);
   addfunction(7);
   
-  display_function();
+  pop(); //7
+  pop(); //6
   
   return 0;
 }
@@ -56,16 +58,12 @@ void display_function()
   cout<< curr -> data << endl;
 }
 
+void pop()
+{
+  cout << curr -> data << endl;
+  curr = curr -> next ;
+}
 
-
-// Prints 
-7
-6
-5
-4
-3
-2
-1 // LIFO
 
 
 
