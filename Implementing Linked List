@@ -16,6 +16,7 @@ nodeptr temp;
 void addfunction(int x);
 void display_function();
 void delete_function(int deldata);
+void add_index(int,int);
 
 int main()
 {
@@ -28,6 +29,8 @@ int main()
   display_function();
   delete_function(2);
   display_function();
+  
+  add_index(500, 2);
   return 0;
 }
 
@@ -73,6 +76,23 @@ void delete_function(int deldata)
   }
 }
 
+void add_index(int number, int index)
+{
+  curr = head ;
+  
+  for (int i = 1; i < index; i++)
+  {
+    curr = curr -> next;
+  }
+  
+  nodeptr next_node = curr -> next;
+  
+  temp = new node;
+  temp -> data = number;
+  curr -> next = temp;
+  temp -> next = next_node;
+  
+}
 
 
 
