@@ -1,0 +1,84 @@
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+const int ROW = 4;
+const int COLUMN = 4;
+
+void zero_function(int[ROW][COLUMN]);
+void populate_function(ifstream&, int [][COLUMN]);
+
+enum classification{F, So, J, Se};
+enum major{CS, CE, Civil, ChemE};
+
+int main()
+{
+    ifstream myfile;
+    myfile.open("infile.txt");
+    int array[ROW][COLUMN];
+    zero_function(array);
+    populate_function(myfile, array);
+
+    for (int i = 0; i<4; i++)
+    {
+        for(int j = 0; j<4; j++)
+        {
+            cout<< array[i][j] ;
+        }
+        cout<< endl ;
+    }
+
+    return 0;
+}
+
+void zero_function(int array[][COLUMN])
+{
+    for (int i = 0; i<4; i++)
+    {
+        for(int j = 0; j<4; j++)
+        {
+            array[i][j] = 0;
+        }
+    }
+}
+
+void populate_function(ifstream& myfile, int array[ROW][COLUMN])
+{
+    string name, classification, major;
+
+    enum classification i ;
+    enum major j ;
+    myfile >> name >> classification >> major ;
+
+    while (myfile)
+    {
+        if (classification == "F")
+            i = F;
+        else
+            if (classification == "So")
+                i = So;
+            else
+                if (classification == "J")
+                    i = J;
+                else
+                    if (classification == "Se")
+                        i = Se;
+        if (major == "CS")
+            j = CS;
+        else
+            if (major == "CE")
+                j = CE;
+            else
+                if (major == "Civil")
+                    j = Civil;
+                else
+                    if (major == "ChemE")
+                        j = ChemE;
+        array[i][j] += 1 ;
+        myfile >> name >> classification >> major ;
+    }
+
+}
+
+
+
