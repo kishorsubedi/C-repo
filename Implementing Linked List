@@ -31,7 +31,7 @@ int main()
   display_function();
   
   add_index(500, 2);
-  return 0;
+  return 0; 
 }
 
 void addfunction(int x)
