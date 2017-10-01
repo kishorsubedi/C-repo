@@ -1,0 +1,72 @@
+#include <iostream>
+using namespace std ;
+
+class car 
+{
+  public:
+    int weight ;
+    car* next ;
+};
+
+class train
+{
+  public:
+    train()
+    {
+      firstcar = NULL ;
+    }
+    
+    car* firstcar ;
+    
+    void loadtrain()
+    {
+      add_end(4);
+      add_front(9);
+      add_end(5) ;
+      add_front(1);
+    }
+    
+    void add_front(int x)
+    {
+      car* temp = firstcar;
+      firstcar = new car;
+      firstcar -> next = temp ;
+      firstcar -> weight = x ;
+    } 
+    
+    void add_end(int y)
+    {
+      car* curr ;
+      if (firstcar == NULL)
+        add_front(y) ;
+      else 
+      {
+        for(curr = firstcar; curr-> next != NULL ; curr = curr -> next);
+        
+        car* temp = curr;
+        curr = new car ;
+        curr -> weight = y ;
+        temp -> next = curr;
+        curr -> next = NULL ;
+      }
+    }
+    
+    void display()
+    {
+      car* curr = firstcar ;
+      while(curr != NULL)
+      {
+        cout << curr -> weight << endl ;
+        curr = curr -> next ;
+      }
+    }
+};
+
+int main()
+{
+  train metro ;
+  metro.loadtrain() ;
+  metro.display() ;
+  return 0;
+}
+
