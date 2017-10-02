@@ -1,0 +1,81 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+  
+class hashclass
+{
+  private:
+    static const int tablesize = 10 ;
+    
+    struct item 
+    {
+      string name ;
+      string drink ;
+      item* next ;
+    };
+    
+    item* hashtable[tablesize]; //table of size 10 with item pointers as data members
+  
+  public:
+    hashclass() ;
+    int hashfunction(string) ;
+    void additem(string, string) ;
+};
+
+hashclass:: hashclass()
+{
+  for(int i=0; i< tablesize ; i++)
+  {
+    hashtable[i] -> name = "empty" ;
+    hashtable[i] -> drink = "empty" ;
+    hashtable[i] -> next = NULL ;
+  }
+}
+
+int hashclass:: hashfunction(string key) //returns index for a key to be stored in table
+{
+  int hash ;
+  int index ;
+  
+  for(int i =0; i< key.length(); i++)
+  {
+    hash += (int) key[i] ;
+  }
+  
+  index = hash % tablesize ;
+  return index ;
+}
+
+void hashclass:: additem(string name, string drink)
+{
+  int index = hashfunction(name) ;
+  
+  if (hashtable[index] -> name == "empty") //means there is no members in that index
+  {
+    hashtable[index] -> name = name ;
+    hashtable[index] -> drink = drink ;
+  }
+  
+  else //Collison case
+  {
+    item* ptr = hashtable[index] ;
+    item* n = new item ;
+    n-> name = "name" ;
+    n -> drink = drink ;
+    n -> next = NULL ;
+    
+    while(ptr -> next != NULL) //Traversing through the linkedlists
+    {
+      ptr = ptr -> next ;
+    }
+    ptr -> next = n ;
+  }
+  
+}
+
+int main()
+{
+  return 0;
+}
+
