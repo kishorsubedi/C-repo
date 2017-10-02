@@ -27,6 +27,7 @@ hashclass:: hashclass()
 {
   for(int i=0; i< tablesize ; i++)
   {
+    hashtable[i] = new item ;
     hashtable[i] -> name = "empty" ;
     hashtable[i] -> drink = "empty" ;
     hashtable[i] -> next = NULL ;
@@ -76,6 +77,8 @@ void hashclass:: additem(string name, string drink)
 
 int main()
 {
+  hashclass dict ;
+  dict.additem("Kishor", "Sprite") ;
   return 0;
 }
 
