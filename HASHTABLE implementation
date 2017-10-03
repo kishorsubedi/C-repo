@@ -38,7 +38,7 @@ hashclass:: hashclass()
 
 int hashclass:: hashfunction(string key) //returns index for a key to be stored in table
 {
-  int hash ;
+  int hash = 0;
   int index ;
   
   for(int i =0; i< key.length(); i++)
