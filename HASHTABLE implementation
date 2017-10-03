@@ -96,15 +96,26 @@ int hashclass :: numberofitemsinindex(int index)
 
 void hashclass:: printfunction()
 {
-  
-  for(int i = 0 ;i< tablesize; i++)
+ for(int i = 0 ; i< tablesize; i++)
   {
     int number = numberofitemsinindex(i) ;
-    cout << "--------------------" << endl;
-    cout << number << endl ;
-    cout << hashtable[i] -> name << endl;
-    cout << hashtable[i]-> drink << endl;
-    cout << "-------------------" << endl << endl;
+    
+    if(number == 0)
+      cout << "The index is empty" << endl ;
+      
+    else 
+    {
+      item* ptr = hashtable[i];
+      while(ptr != NULL)
+      {
+        cout << "--------------------" << endl;
+        cout << ptr -> name << endl;
+        cout << ptr -> drink << endl;
+        cout << "-------------------" << endl << endl; 
+        ptr = ptr -> next ;
+      }
+    }
+  cout << endl << endl << endl ;
   }
 }
 
@@ -124,6 +135,8 @@ int main()
   dict.printfunction() ;
   return 0;
 }
+
+
 
 
 
