@@ -21,6 +21,7 @@ class hashclass
     hashclass() ;
     int hashfunction(string) ;
     void additem(string, string) ;
+    int numberofitemsinindex(int) ;
 };
 
 hashclass:: hashclass()
@@ -72,7 +73,23 @@ void hashclass:: additem(string name, string drink)
     }
     ptr -> next = n ;
   }
-  
+}
+
+int hashclass :: numberofitemsinindex(int index)
+{
+  int count = 0;
+  if(hashtable[index] -> name == "empty")
+    return count ;
+  else
+  {
+    count ++ ; 
+    item* pointer = hashtable[index] ;
+    while(pointer -> next != NULL)
+    {
+      count += 1 ;
+      pointer = pointer -> next ;
+    }
+  }
 }
 
 int main()
@@ -81,4 +98,7 @@ int main()
   dict.additem("Kishor", "Sprite") ;
   return 0;
 }
+
+
+
 
