@@ -22,6 +22,7 @@ class hashclass
     int hashfunction(string) ;
     void additem(string, string) ;
     int numberofitemsinindex(int) ;
+    void printfunction();
 };
 
 hashclass:: hashclass()
@@ -90,14 +91,43 @@ int hashclass :: numberofitemsinindex(int index)
       pointer = pointer -> next ;
     }
   }
+  return count;
+}
+
+void hashclass:: printfunction()
+{
+  
+  for(int i = 0 ;i< tablesize; i++)
+  {
+    int number = numberofitemsinindex(i) ;
+    cout << "--------------------" << endl;
+    cout << number << endl ;
+    cout << hashtable[i] -> name << endl;
+    cout << hashtable[i]-> drink << endl;
+    cout << "-------------------" << endl << endl;
+  }
 }
 
 int main()
 {
   hashclass dict ;
   dict.additem("Kishor", "Sprite") ;
+  dict.additem("Binaya", "Coke") ;
+  dict.additem("Sudarshan", "Cock");
+  dict.additem("Sushan", "Fanta");
+  dict.additem("Henching", "Water");
+  dict.additem("Bijesh", "Yoghurt");
+  dict.additem("Nimesh", "Cock");
+  dict.additem("Anurag", "Pussy");
+  dict.additem("Sudheesh", "Tika");
+  
+  dict.printfunction() ;
   return 0;
 }
+
+
+
+
 
 
 
