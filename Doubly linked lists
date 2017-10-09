@@ -1,0 +1,67 @@
+#include <iostream>
+using namespace std ;
+
+
+struct nodetype
+{
+  nodetype* prev ;
+  int info ;
+  nodetype* next ;
+};
+
+class linkedlist
+{
+  public:
+    nodetype* head = NULL ;
+    
+    void insert(int data)
+    {
+      nodetype* slider1 = head ;
+      nodetype* slider2 = NULL;
+      while(slider1)
+      {
+        slider2 = slider1 ;
+        slider1 = slider1 -> next ;
+      }
+      slider1 = new nodetype;
+      slider1 -> info = data;
+      slider1 -> prev = slider2;
+      slider2 -> next = slider1 ;
+      slider1 -> next = NULL ;
+    }
+    
+    void printforward()
+    {
+      nodetype* curr = head ;
+      while(curr)
+      {
+        cout << curr -> info;
+        curr = curr -> next ;
+      }
+      
+    }
+};
+int main()
+{
+  linkedlist l1 ;
+  l1.head = new nodetype ;
+  l1.head -> info = 1 ;
+  l1.head -> next = NULL ;
+  l1.head -> prev = NULL ;
+  
+  
+  l1.insert(2) ;
+  l1.insert(3) ;
+  l1.insert(4) ;
+  l1.insert(5) ;
+  
+  l1.printforward();
+  
+  return 0;
+}
+
+
+
+
+
+
