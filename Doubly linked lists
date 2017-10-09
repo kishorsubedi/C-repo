@@ -38,6 +38,18 @@ class linkedlist
         cout << curr -> info;
         curr = curr -> next ;
       }
+      cout << endl << endl ;
+    }
+    
+    void printreverse()
+    {
+      nodetype* curr ;
+      for(curr = head; curr -> next != NULL; curr = curr-> next);
+      while (curr)
+      {
+        cout << curr -> info ;
+        curr = curr -> prev ;
+      }
       
     }
 };
@@ -56,9 +68,16 @@ int main()
   l1.insert(5) ;
   
   l1.printforward();
-  
+  l1.printreverse() ;
   return 0;
 }
+
+
+
+
+
+
+
 
 
 
