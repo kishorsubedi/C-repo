@@ -1,0 +1,283 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+using namespace std; 
+   
+class CAR                        // class for train cars
+{ 
+  public: 
+    CAR();                       // constructor       
+    int getWeight();             // returns the weight of the car in pounds   
+    void loadCar(int);           // loads a cargo with parameter weight      
+    CAR *nextCar;                // pointer to the next car on the train
+  private:     
+    int cargoWeight;             // the weight of the trains cargo
+};
+   
+class TRAIN                     // train class as a linked list of cars
+{
+  private:       
+    int trainWeight; 
+  public:       
+    TRAIN();                   //constructor  
+    TRAIN(const TRAIN& LHS) ;   //copy constructor
+    const TRAIN& operator=(const TRAIN& RHS);
+    int getWeight();           // returns the weight of the train      
+    void loadTrain();          // load train with initial cars      
+    void addCar_front(int);
+    void addCar_end(int);      // THIS IS CODE YOU MUST WRITE//   
+    void insertInOrder(int);
+    ~TRAIN();                  // destructor THIS IS CODE YOU MUST WRITE             
+    void displayTrainInfo();
+    CAR *firstCar; 
+}; 
+CAR::CAR ()
+{
+  cargoWeight = 75; 
+  nextCar = NULL;
+}
+  
+TRAIN::~TRAIN () 
+{
+  while (firstCar){
+  CAR* hold = firstCar -> nextCar; // this pointer holds the firstCar next part
+  delete firstCar ; //firstCar object is freed into the heap 
+  firstCar = hold ; //firstCar now points to it's next object 
+  //displayTrainInfo() ; //Train class's display function 
+  cout << "Destructor was called" << endl;
+  }
+}
+  
+int CAR::getWeight()
+{
+ return cargoWeight;
+} 
+void CAR::loadCar (int cargo)
+{
+  cargoWeight = cargo;
+}
+TRAIN::TRAIN() 
+{ 
+  trainWeight = 0;
+  firstCar = NULL;
+} 
+int TRAIN::getWeight() // returns the train weight
+{ 
+ return trainWeight;
+} 
+void TRAIN::loadTrain() // load train with initial cars
+{  
+  insertInOrder(0);
+  insertInOrder(10);
+  insertInOrder(20);
+  insertInOrder(30);
+  insertInOrder(40);
+  insertInOrder(50);
+  insertInOrder(60);
+  insertInOrder(60);
+  insertInOrder(30);
+  insertInOrder(40);
+}
+void TRAIN::addCar_end (int cWeight)    // add car to end    
+{ 
+  if (!firstCar){
+    this->addCar_front(cWeight);
+  }
+  else
+  {
+    CAR* current;
+    for (current = firstCar; current->nextCar; current=current->nextCar);
+    current->nextCar = new CAR;
+    current->nextCar->loadCar(cWeight);
+    current->nextCar->nextCar = NULL;
+  }
+}
+void TRAIN::addCar_front (int cWeight)  // add first car to train                                            
+{ 
+  CAR* temp = firstCar;
+  firstCar = new CAR;
+  firstCar->nextCar = temp;
+  firstCar->loadCar(cWeight);
+}
+void TRAIN::insertInOrder(int cWeight)
+{
+  CAR* newCar = new CAR;
+  newCar->loadCar(cWeight);
+  newCar->nextCar = NULL;
+  if (!firstCar){
+    firstCar = newCar;
+  } else {
+    if (newCar->getWeight() <= firstCar->getWeight()){
+      newCar->nextCar = firstCar;
+      firstCar = newCar;
+    } else {
+      CAR* previousCar = firstCar;
+      CAR* currentCar = firstCar->nextCar;
+      bool inserted = false;
+      while (currentCar){
+        if (newCar->getWeight() <= currentCar->getWeight()){
+          newCar->nextCar = currentCar;
+          previousCar->nextCar = newCar;
+          inserted = true;
+          break;
+        }
+        previousCar = currentCar;
+        currentCar = currentCar->nextCar;
+      }
+      if (!inserted){
+        previousCar->nextCar = newCar;
+      }
+    }
+  }
+}
+void TRAIN::displayTrainInfo() 
+{ 
+  int cnt = 0; 
+  CAR* ptrCar; 
+  for (ptrCar = firstCar; ptrCar != NULL && ++cnt <11; ptrCar = ptrCar->nextCar)  
+    cout << "+-------+  "; 
+  cout << endl; 
+  cnt = 0; 
+  for (ptrCar = firstCar; ptrCar != NULL && ++cnt < 11; ptrCar = ptrCar->nextCar)   
+    cout << "|       |  "; 
+  cout << endl; cnt = 0; 
+  for (ptrCar = firstCar; ptrCar != NULL && ++cnt < 11; ptrCar = ptrCar->nextCar) 
+  {  
+    if ((*ptrCar).getWeight() < 10)   
+      cout << "|   " << (*ptrCar).getWeight() << "   |->";  else    cout << "|   " << (*ptrCar).getWeight() << "  |->"; 
+  } 
+  cout << endl; cnt = 0; 
+  for (ptrCar = firstCar; ptrCar != NULL && ++cnt < 11; ptrCar = ptrCar->nextCar) 
+    cout << "|       |  "; 
+  cout << endl; 
+  cnt = 0; 
+  for (ptrCar = firstCar; ptrCar != NULL && ++cnt < 11; ptrCar = ptrCar->nextCar)  
+    cout << "+-------+  ";
+  cout << endl;
+ }
+ 
+TRAIN::TRAIN(const TRAIN& LHS)
+{
+    firstCar = new CAR;
+    CAR* currentLHS = LHS.firstCar;
+    CAR* current = firstCar;
+    firstCar->loadCar(LHS.firstCar->getWeight());// 
+    current->nextCar = new CAR;
+    currentLHS = currentLHS->nextCar;
+    for (current = firstCar->nextCar; currentLHS->nextCar != NULL; currentLHS = currentLHS->nextCar)
+    {
+        current->loadCar(currentLHS->getWeight());
+        current->nextCar = new CAR;
+        current = current->nextCar;
+    }
+    current->loadCar(currentLHS->getWeight());
+    current->nextCar = NULL;
+}
+
+const TRAIN& TRAIN::operator=(const TRAIN& RHS)
+{
+    this->~TRAIN();
+    CAR * current = RHS.firstCar;
+    CAR * currentLHS = new CAR;
+    currentLHS->loadCar(current->getWeight());
+    currentLHS->nextCar = NULL;
+    this->firstCar = currentLHS;
+    for (current = RHS.firstCar->nextCar; current != NULL; current = current->nextCar)
+    {
+        //currentLHS->nextCar = new CAR;
+        //currentLHS->nextCar->loadCar(current->getWeight());
+        //currentLHS->nextCar = NULL;
+        this->addCar_end(current->getWeight());
+    }
+    return *this;
+}  
+
+void print_train(TRAIN obj)
+{
+  obj.displayTrainInfo() ;
+}
+
+ int main()
+{ 
+  TRAIN MetroLiner; 
+  cout << "PROGRAM OUTPUT:" << endl;  
+  MetroLiner.loadTrain();   
+  //MetroLiner.displayTrainInfo();
+  
+  TRAIN Amtrak; //Amtrak is instantiated
+  Amtrak = MetroLiner; //Overloaded assignment operator is put into use to copy Metroliner to Amtrak, with brand new pointers but with same value
+  
+  print_train(Amtrak); //Function takes the object Amtrak, but copy constructor creates a deep local copy of it to operate inside the function, The local copy is operated upon and is deallocated as function is returned, by calling its destructor  
+  
+  TRAIN Marc = MetroLiner ; //Initializing Marc with another object MetroLiner of same class, this calls the copy constructor to make a deep copy of TRAIN class
+  print_train(Marc); //Copy constructor is activated again
+  
+  system("pause");
+  //Here, Marc, MetroLiner and Amtrak are freed using their destructors 
+  return 0;
+}
+/*
+PROGRAM OUTPUT:
++-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  
+|       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  
+|   0   |->|   10  |->|   20  |->|   30  |->|   30  |->|   40  |->|   40  |->|   50  |->|   60  |->|   60  |->
+|       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  
++-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
++-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  
+|       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  
+|   0   |->|   10  |->|   20  |->|   30  |->|   30  |->|   40  |->|   40  |->|   50  |->|   60  |->|   60  |->
+|       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  |       |  
++-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  +-------+  
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+sh: 1: pause: not found
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+Destructor was called
+   
+*/
