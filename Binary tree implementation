@@ -1,0 +1,80 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+struct nodeType
+{
+  int info;
+  nodeType* left ;
+  nodeType* right ;
+};
+
+class tree
+{
+  public:
+    nodeType* rootptr = NULL ;
+    void insert(int data)
+    {
+      if(!rootptr)
+      {
+        rootptr = new nodeType;
+        rootptr -> info = data ;
+        rootptr -> left = NULL ;
+        rootptr -> right = NULL ;
+      }
+      else //rootptr not NULL
+      {
+        put(rootptr, data) ;
+      }
+      
+    }
+    
+    void put(nodeType* rootptr, int data)
+    {
+      if ( (data > rootptr -> info) && (rootptr -> right == NULL) )
+      {
+        rootptr -> right = new nodeType;
+        rootptr -> right -> info = data ;
+        rootptr -> right -> left = NULL ;
+        rootptr -> right -> right = NULL ;
+      }
+      else if ( (data <= rootptr -> info) && (rootptr -> left == NULL) )
+      {
+        rootptr -> left = new nodeType;
+        rootptr -> left -> info = data ;
+        rootptr -> left -> left = NULL ;
+        rootptr -> left -> right = NULL ;
+      }
+      else
+        
+        if (data <= rootptr-> info)
+          return put(rootptr-> left, data) ;
+        else //bigger and some node already there
+          return put(rootptr -> right, data);
+      
+    }
+    
+    void print()
+    {
+      cout << rootptr -> info << endl ; 
+      cout << rootptr -> left-> info << endl;
+      cout << rootptr -> right -> info << endl;
+      cout << rootptr -> right -> right -> info << endl ;
+    }
+    
+};
+
+int main()
+{
+    tree oak ;
+    oak.insert(4);
+    oak.insert(5) ; 
+    oak.insert(2) ;
+    
+    oak.insert(8) ;
+    oak.print() ;
+    return 0;
+}
+
+
