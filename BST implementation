@@ -45,12 +45,14 @@ class tree
       
     }
     
-    void print()
+    void printmax()
     {
-      cout << rootptr -> info << endl ; 
-      cout << rootptr -> left-> info << endl;
-      cout << rootptr -> right -> info << endl;
-      cout << rootptr -> right -> right -> info << endl ;
+      nodeType* ptr = rootptr;
+      while( ptr -> right != NULL)
+      {
+        ptr = ptr -> right ;
+      }
+      cout << ptr -> info << endl;
     }
     
     nodeType* makenode(int data)
@@ -70,9 +72,11 @@ int main()
     oak.insert(4);
     oak.insert(5) ; 
     oak.insert(2) ;
-    
     oak.insert(8) ;
-    oak.print() ;
+    oak.insert(10);
+    oak.insert(15);
+    
+    oak.printmax() ;
     return 0;
 }
 
