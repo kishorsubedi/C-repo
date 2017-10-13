@@ -18,33 +18,23 @@ class tree
     {
       if(!rootptr)
       {
-        rootptr = new nodeType;
-        rootptr -> info = data ;
-        rootptr -> left = NULL ;
-        rootptr -> right = NULL ;
+        rootptr = makenode(data);
       }
       else //rootptr not NULL
       {
-        put(rootptr, data) ;
+        put(rootptr, data) ; //rootptr is passed as argument, but a pointer copy is made
       }
       
     }
-    
     void put(nodeType* rootptr, int data)
     {
       if ( (data > rootptr -> info) && (rootptr -> right == NULL) )
       {
-        rootptr -> right = new nodeType;
-        rootptr -> right -> info = data ;
-        rootptr -> right -> left = NULL ;
-        rootptr -> right -> right = NULL ;
+        rootptr -> right = makenode(data);
       }
       else if ( (data <= rootptr -> info) && (rootptr -> left == NULL) )
       {
-        rootptr -> left = new nodeType;
-        rootptr -> left -> info = data ;
-        rootptr -> left -> left = NULL ;
-        rootptr -> left -> right = NULL ;
+        rootptr -> left = makenode(data) ;
       }
       else
         
@@ -63,6 +53,15 @@ class tree
       cout << rootptr -> right -> right -> info << endl ;
     }
     
+    nodeType* makenode(int data)
+    {
+      nodeType* temp = new nodeType;
+      temp -> info = data ;
+      temp -> left = NULL ;
+      temp -> right = NULL ;
+      return temp ;
+    }
+    
 };
 
 int main()
@@ -77,4 +76,10 @@ int main()
     return 0;
 }
 
+
+/*4 
+2 
+5 
+8 
+*/
 
