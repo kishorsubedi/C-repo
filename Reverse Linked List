@@ -13,30 +13,28 @@ class linkedlist
   public:
     nodetype* head = NULL ;
     
-    void insert(int data, int index)
+    void insert(int data)
     {
-      nodetype* curr = head ;
-      nodetype* prev = NULL ;
-      while(curr != NULL)
+      if(!head)
       {
-        prev = curr ;
-        curr = curr -> next ;
-      }
-      curr = new nodetype;
-      curr -> info = data ;
-      if(index == 0){
-        head = curr ;
+        head = new nodetype ;
+        head -> info = data ;
         head -> next = NULL ;
-        return ;
       }
-      prev -> next = curr ;
-      curr -> next = NULL ;
+      else
+      {
+        nodetype* curr ;
+        for(curr = head; curr -> next != NULL; curr = curr -> next) ;
+        curr -> next = new nodetype;
+        curr -> next -> info = data;
+        curr -> next -> next = NULL ;
+      }
     }
   
     void print()
     {
       nodetype* curr = head ;
-      while(curr != NULL)
+      while(curr)
       {
         cout << curr -> info << endl;
         curr = curr -> next ;
@@ -58,18 +56,16 @@ class linkedlist
         
       }
       head = prev ;
-      
     }
-    
-    
 };
+
 int main()
 {
   linkedlist l1 ;
-  l1.insert(100,0);
-  l1.insert(200,1);
-  l1.insert(300, 2) ;
-  l1.insert(400,3) ;
+  l1.insert(100);
+  l1.insert(200);
+  l1.insert(300) ;
+  l1.insert(400) ;
   
   l1.print() ;
   
