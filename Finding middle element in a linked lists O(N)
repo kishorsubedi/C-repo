@@ -1,0 +1,93 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+struct node
+{
+  int info;
+  node* next ;
+};
+
+class linkedlist
+{
+  public:
+    node* firstptr = NULL ;
+    ~linkedlist()
+    {
+      while(firstptr){
+        node* hold = firstptr -> next ;
+        delete firstptr ;
+        firstptr = hold ;
+      }
+    }
+    
+    void insert(int x )
+    {
+      if (!firstptr)
+      {
+        firstptr = new node;
+        firstptr -> info = x ;
+        firstptr -> next = NULL ;
+      }
+      else
+      {
+        node* curr ;
+        for(curr = firstptr; curr -> next != NULL ; curr = curr -> next);
+        curr -> next = new node;
+        curr -> next -> info = x ;
+        curr -> next -> next = NULL ;
+      }
+    }
+    
+    void print()
+    {
+      node* curr = firstptr;
+      while(curr)
+      {
+        cout << curr -> info << endl;
+        curr = curr -> next ;
+      }
+      cout << endl << endl ;
+    }
+    
+    int find()
+    {
+      node* prev = firstptr -> next ;
+      node* curr = prev -> next ;
+      while ( curr -> next != NULL )
+      {
+        prev = prev -> next ;
+        curr = curr -> next -> next ;
+      }
+      return prev -> info ;
+    }
+};
+
+int main()
+{
+    linkedlist l1 ;
+    l1.insert(1);
+    l1.insert(23);
+    l1.insert(2);
+    l1.insert(3);
+    l1.insert(4);
+    l1.insert(31) ;
+    l1.insert(5) ;
+    l1.insert(6) ;
+    l1.insert(9) ;
+    
+    l1.print() ; 
+    cout << l1.find() ; //4 
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
