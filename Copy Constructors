@@ -1,3 +1,24 @@
+/* MY VERO OWN COMPY CONSTRUCTOR
+TRAIN::TRAIN(const TRAIN& LHS)
+{
+    firstCar = new CAR ;
+    CAR* currentLHS = LHS.firstCar ;
+    CAR* current = firstCar ;
+    current -> loadCar(currentLHS -> getWeight()) ;
+    currentLHS = currentLHS -> nextCar ;
+    while (currentLHS -> nextCar != NULL)
+    {
+      current -> nextCar = new CAR ;
+      current = current -> nextCar ;
+      current -> loadCar(currentLHS -> getWeight()) ;
+      currentLHS = currentLHS -> nextCar ;
+    }
+    current -> nextCar = new CAR ;
+    current = current -> nextCar ;
+    current -> loadCar(currentLHS -> getWeight()) ;
+}
+*/
+
 #include <iostream>
 #include <string>
 #include <fstream>
