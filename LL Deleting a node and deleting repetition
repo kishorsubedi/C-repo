@@ -89,7 +89,28 @@ int main()
 }
 
 
-
+/*
+void deleteitem(int x)
+    {
+      node* prev = NULL ;
+      node* curr = firstptr ;
+      if( curr -> info == x)
+      {
+        firstptr = curr -> next ;
+        delete curr ;
+      }
+      else
+      {
+        while( curr -> info != x)
+        {
+          prev = curr ;
+          curr = curr -> next ;
+        }
+        prev -> next = curr -> next ;
+        delete curr ;
+      }
+    }
+*/
 
 
 
