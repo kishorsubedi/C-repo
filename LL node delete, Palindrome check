@@ -103,7 +103,7 @@ int main()
       return true ;
     }
     
-  bool palindrome_check()
+ bool palindrome_check()
     {
       vector <int> my_vector ;
       my_vector.push_back(firstptr-> info) ;
@@ -113,13 +113,23 @@ int main()
       
       while( curr -> next != NULL)
       {
-        my_vector.push_back(prev-> info) 
+        my_vector.push_back(prev-> info) ;
         prev = prev -> next;
         curr = curr -> next -> next ;
       }
       // prev points to middle element in linked list, vector has first half of elements 
+      int finalindex= my_vector.size() - 1 ;
+      prev = prev -> next ;
       
+      while(prev != NULL)
+      {
+        if (prev -> info != my_vector[finalindex--] )
+          return false ;
+        prev = prev -> next ;
+      }
+      return true ;
     }
+    
   */
 
 
