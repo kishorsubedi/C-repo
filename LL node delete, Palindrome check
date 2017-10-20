@@ -102,6 +102,24 @@ int main()
       }
       return true ;
     }
+    
+  bool palindrome_check()
+    {
+      vector <int> my_vector ;
+      my_vector.push_back(firstptr-> info) ;
+      
+      node* prev = firstptr -> next;
+      node* curr = prev -> next ;
+      
+      while( curr -> next != NULL)
+      {
+        my_vector.push_back(prev-> info) 
+        prev = prev -> next;
+        curr = curr -> next -> next ;
+      }
+      // prev points to middle element in linked list, vector has first half of elements 
+      
+    }
   */
 
 
