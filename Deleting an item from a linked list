@@ -82,7 +82,27 @@ int main()
     l1.print() ;
     return 0;
 }
-
+/* Palindrome check Linked List: O(N+ N/2) O(N)Spacefor vector
+ bool palindrome_check()
+    {
+      vector <int> myvector ;
+      node* curr = firstptr;
+      while(curr != NULL)
+      {
+        myvector.push_back(curr-> info);
+        curr = curr -> next ;
+      }
+      
+      int i = 0 ;
+      while( i < myvector.size()/2 )
+      {
+        if(myvector[i] != myvector[myvector.size() - i - 1])
+          return false;
+        i ++ ;
+      }
+      return true ;
+    }
+  */
 
 
 
