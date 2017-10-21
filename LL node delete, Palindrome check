@@ -50,40 +50,7 @@ class linkedlist
       }
       cout << endl << endl ;
     }
-    
-    void deleteitem(int x )
-    {
-      node* prev = NULL ;
-      node* curr = firstptr;
-      
-      while(curr -> info != x)
-      {
-        prev = curr ;
-        curr = curr -> next ;
-      }
-      prev -> next = curr -> next ;
-      delete curr ;
-    }
-};
-
-int main()
-{
-    linkedlist l1 ;
-    l1.insert(1);
-    l1.insert(2);
-    l1.insert(3);
-    l1.insert(4);
-    l1.insert(5) ;
-    l1.insert(6) ;
-    l1.insert(9) ;
-    
-    l1.print() ;
-    l1.deleteitem(5);
-    l1.print() ;
-    return 0;
-}
-/* Palindrome check Linked List: O(N+ N/2) O(N)Spacefor vector
- bool palindrome_check()
+    bool palindrome_check()
     {
       vector <int> myvector ;
       node* curr = firstptr;
@@ -102,6 +69,27 @@ int main()
       }
       return true ;
     }
+    
+};
+
+int main()
+{
+    linkedlist l1 ;
+    l1.insert(1);
+    l1.insert(2);
+    l1.insert(3);
+    l1.insert(4);
+    l1.insert(5) ;
+    l1.insert(6) ;
+    l1.insert(9) ;
+    
+    l1.print() ;
+    l1.palindrome_check() ;
+    l1.print() ;
+    return 0;
+}
+/* Palindrome check Linked List: O(N+ N/2) O(N)Spacefor vector
+ 
     
  bool palindrome_check()
     {
