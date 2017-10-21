@@ -83,7 +83,72 @@ int main()
 }
 
 
-
+int find (linkedlist a, linkedlist b)
+    {
+      int lengtha = 0 ;
+      int lengthb = 0 ;
+      
+      int final = 0 ;
+      linkedlist bigobject ;
+      linkedlist smallobject;
+      
+      node* acurr = a.firstptr ;
+      node* bcurr = b.firstptr ;
+      while(acurr != NULL)
+      {
+        lengtha += 1 ;
+        acurr = acurr -> next ;
+      }
+      bcurr = b. firstptr ;
+      while(bcurr != NULL)
+      {
+        lengthb += 1 ;
+        bcurr = bcurr -> next ;
+      }
+      
+      bool onefound = false ;
+      acurr = a.firstptr;
+      bcurr = b.firstptr;
+      
+      if(lengtha < lengthb)
+      {
+        for(int i=0; i< (lengthb-lengtha); i++ )
+        {
+          bcurr = bcurr -> next ;
+        }
+      }
+      
+      else
+      {
+        for(int i=0; i< (lengtha-lengthb); i++ )
+        {
+          acurr = acurr -> next ;
+        }
+      }
+      while(acurr != NULL)
+      {
+        if (acurr -> info == bcurr -> info && onefound == false)
+        {
+          final = acurr -> info ;
+          onefound = true ;
+        }
+        
+        else
+        {
+          if(acurr -> info != bcurr -> info)
+          {
+            onefound = false;
+            final = 0 ;
+          }
+        }
+        
+        acurr = acurr -> next ;
+        bcurr = bcurr -> next ;
+      }
+      return final ;
+      
+    }
+   
 
 
 
