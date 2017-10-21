@@ -73,8 +73,31 @@ int main()
   l1.print() ;
   return 0;
 }
-
-
+/* USING recursion to reverse the linked lists
+void reverse(nodetype* prev, nodetype* curr)
+    {
+      if(curr -> next == NULL)
+      {
+        curr -> next = prev ;
+        head = curr ;
+        return ;
+      }
+      
+      else
+      {
+        nodetype* m = curr -> next ;
+        curr -> next = prev ;
+        prev = curr ;
+        curr = m ;
+        return reverse(prev , curr) ;
+      }
+    }
+  
+  nodetype* p = NULL ;
+  nodetype* c = l1.head ;
+  l1.reverse(p, c) ;
+  
+  */ 
 
 
 
