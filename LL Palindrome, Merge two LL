@@ -121,35 +121,33 @@ int main()
 /*
 node* merge(node* list1, node* list2)
 {
-    node* curr = list2 ;
+
     node* p = NULL ;
-    node* c = list1;
-    
     node* mergedfirstpointer = list1 ;
     
-    while(curr != NULL)
+    while(list2 != NULL)
     {
-      while (c!= NULL && c -> info < curr -> info )
+      while (list1!= NULL && list1 -> info < list2 -> info )
       {
-        p = c ;
-        c = c -> next ;
+        p = list1 ;
+        list1 = list1 -> next ;
       }
       if (p== NULL)
       {
-        node* hold = curr -> next ;
-        curr -> next = c ;
-        mergedfirstpointer = curr ;
-        curr = hold ;
+        node* hold = list2 -> next ;
+        list2 -> next = list1 ;
+        mergedfirstpointer = list2 ;
+       list2 = hold ;
         continue ;
       }
-      p -> next = curr ;
-      node* hold = curr ;
-      curr = curr -> next ;
-      hold -> next = c ;
-      if (c != NULL)
+      p -> next = list2 ;
+      node* hold = list2 ;
+      list2 = list2 -> next ;
+      hold -> next = list1 ;
+      if (list1 != NULL)
       {
-        p = c ;
-        c = c -> next ;
+        p = list1 ;
+        list1 = list1 -> next ;
       }
     }
   return mergedfirstpointer;
