@@ -118,6 +118,32 @@ int main()
       return true ;
     }
     
+/*
+node* curr = l2.firstptr ;
+    node* p = NULL ;
+    node* c = l1.firstptr;
+    
+    while(curr != NULL)
+    {
+      while (c!= NULL && c -> info < curr -> info )
+      {
+        p = c ;
+        c = c -> next ;
+      }
+      p -> next = curr ;
+      node* hold = curr ;
+      curr = curr -> next ;
+      hold -> next = c ;
+      if (c != NULL)
+      {
+        p = c ;
+        c = c -> next ;
+      }
+       /*p -> next = new node ;
+      p -> next -> info = curr -> info ;
+      p -> next -> next = c ; */  
+    }
+    
   */
 
 
