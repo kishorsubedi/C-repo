@@ -76,8 +76,8 @@ class linkedlist
 node* merger(node* l1head, node* l2head)
 {
     node* finalhead = l1head ;
-    
     node* slider = l2head ;
+    node* prev = l1head ;
     while(slider != NULL)
     {
         if (slider->info <= l1head -> info)
@@ -90,7 +90,6 @@ node* merger(node* l1head, node* l2head)
         }
         else
         {
-            node* prev = l1head ;
             node* curr = prev -> next;
             
             while(curr != NULL and curr -> info < slider -> info)
