@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 using namespace std;
 
 struct node
@@ -72,6 +73,40 @@ class linkedlist
     
 };
 
+node* merger(node* l1head, node* l2head)
+{
+    node* finalhead = l1head ;
+    
+    node* slider = l2head ;
+    while(slider != NULL)
+    {
+        if (slider->info <= l1head -> info)
+        {
+            node* hold = slider -> next ;
+            slider -> next = l1head ;
+            l1head = slider ;
+            finalhead = l1head ;
+            slider = hold ;
+        }
+        else
+        {
+            node* prev = l1head ;
+            node* curr = prev -> next;
+            
+            while(curr != NULL and curr -> info < slider -> info)
+            {
+                prev =curr ;
+                curr = curr -> next ;
+            }
+            node* hold = slider -> next ;
+            prev -> next = slider ;
+            slider -> next = curr ;
+            slider = hold ;
+        }
+    }
+    return finalhead ;
+}
+
 int main()
 {
     linkedlist l1 ;
@@ -84,82 +119,18 @@ int main()
     l1.insert(9) ;
     
     l1.print() ;
-    l1.palindrome_check() ;
-    l1.print() ;
+    
+    linkedlist l2;
+    l2.insert(0);
+    l2.insert(4);
+    l2.insert(10);
+    
+    node* temp = merger(l1.firstptr, l2.firstptr) ;
+    while(temp)
+    {
+        cout << temp -> info << endl ;
+        temp = temp -> next ;
+    }
     return 0;
 }
-/* Palindrome check Linked List: O(N+ N/2) O(N)Spacefor vector
- 
-    
- bool palindrome_check()
-    {
-      vector <int> my_vector ;
-      my_vector.push_back(firstptr-> info) ;
-      
-      node* prev = firstptr -> next;
-      node* curr = prev -> next ;
-      
-      while( curr -> next != NULL)
-      {
-        my_vector.push_back(prev-> info) ;
-        prev = prev -> next;
-        curr = curr -> next -> next ;
-      }
-      // prev points to middle element in linked list, vector has first half of elements 
-      int finalindex= my_vector.size() - 1 ;
-      prev = prev -> next ;
-      
-      while(prev != NULL)
-      {
-        if (prev -> info != my_vector[finalindex--] )
-          return false ;
-        prev = prev -> next ;
-      }
-      return true ;
-    }
-    
-/*
-node* merge(node* list1, node* list2)
-{
-
-    node* p = NULL ;
-    node* mergedfirstpointer = list1 ;
-    
-    while(list2 != NULL)
-    {
-      while (list1!= NULL && list1 -> info < list2 -> info )
-      {
-        p = list1 ;
-        list1 = list1 -> next ;
-      }
-      if (p== NULL)
-      {
-        node* hold = list2 -> next ;
-        list2 -> next = list1 ;
-        mergedfirstpointer = list2 ;
-       list2 = hold ;
-        continue ;
-      }
-      p -> next = list2 ;
-      node* hold = list2 ;
-      list2 = list2 -> next ;
-      hold -> next = list1 ;
-      if (list1 != NULL)
-      {
-        p = list1 ;
-        list1 = list1 -> next ;
-      }
-    }
-  return mergedfirstpointer;
-}
-    
-  */
-
-
-
-
-
-
-
-
 
