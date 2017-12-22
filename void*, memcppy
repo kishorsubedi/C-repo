@@ -1,7 +1,19 @@
-void swap(void* x, void* y, int size) //generic type of reference or address of any datatype
+#include <iostream>
+#include <string>
+using namespace std;
+
+void swap(void* x, void* y, const int SIZE) //generic type of reference or address of any datatype
 {
-    char buffer[size];
-    memcpy(buffer, x, size); //copies 'size' number of bytes(bit pattern) from x address to the buffer 
-    memcpy(x, y, size);
-    memcpy(y, buffer, size);
+    char buffer[SIZE];
+    memcpy(buffer, x, SIZE); //copies 'SIZE' number of bytes(bit pattern) from x address to the buffer 
+    memcpy(x, y, SIZE);
+    memcpy(y, buffer, SIZE);
+}
+
+int main()
+{
+    int x = 3;
+    int y = 4;
+    swap(&x, &y, sizeof(int));
+    return 0 ;
 }
