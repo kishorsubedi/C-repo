@@ -1,0 +1,7 @@
+void swap(void* x, void* y, int size) //generic type of reference or address of any datatype
+{
+    char buffer[size];
+    memcpy(buffer, x, size); //copies 'size' number of bytes(bit pattern) from x address to the buffer 
+    memcpy(x, y, size);
+    memcpy(y, buffer, size);
+}
