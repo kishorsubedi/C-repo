@@ -1,0 +1,31 @@
+#include <iostream>
+#include <thread>
+using namespace std ;
+
+
+static bool finished = false ;
+
+void dowork()
+{
+    while(finished == false)
+    {
+        cout << "Waiting.." << endl;
+        this_thread::sleep_for(1s);
+    }
+}
+
+int main()
+{
+    
+    thread worker(dowork); //function pointer
+    
+    cin.get();
+    finished = true; //worker thread's dowork is returned
+    
+    worker.join();// worker thread is joined to main thread
+    
+    //cin.get();
+    
+    return 0;
+}
+
