@@ -3,87 +3,92 @@
 #include <string>
 using namespace std;
 
+struct person
+{
+	string name;
+	int salary;
+};
+
 struct nodeType
 {
-  int info;
-  nodeType* left ;
-  nodeType* right ;
+	person info;
+	nodeType* left;
+	nodeType* right;
 };
 
 class tree
 {
-  public:
-    nodeType* rootptr = NULL ;
-    void insert(int data)
-    {
-      if(!rootptr)
-      {
-        rootptr = makenode(data);
-      }
-      else //rootptr not NULL
-      {
-        put(rootptr, data) ; //rootptr is passed as argument, but a pointer copy is made
-      }
-      
-    }
-    void put(nodeType* rootptr, int data)
-    {
-      if ( (data > rootptr -> info) && (rootptr -> right == NULL) )
-      {
-        rootptr -> right = makenode(data);
-      }
-      else if ( (data <= rootptr -> info) && (rootptr -> left == NULL) )
-      {
-        rootptr -> left = makenode(data) ;
-      }
-      else
-        
-        if (data <= rootptr-> info)
-          return put(rootptr-> left, data) ;
-        else //bigger and some node already there
-          return put(rootptr -> right, data);
-      
-    }
-    
-    void printmax()
-    {
-      nodeType* ptr = rootptr;
-      while( ptr -> right != NULL)
-      {
-        ptr = ptr -> right ;
-      }
-      cout << ptr -> info << endl;
-    }
-    
-    nodeType* makenode(int data)
-    {
-      nodeType* temp = new nodeType;
-      temp -> info = data ;
-      temp -> left = NULL ;
-      temp -> right = NULL ;
-      return temp ;
-    }
-    
+public:
+	nodeType* rootptr = NULL;
+
+	void inorder(nodeType* ptr)
+	{
+		if (ptr -> left != NULL)
+			inorder(ptr->left);
+		cout << ptr->info.salary << endl;
+		if (ptr -> right != NULL)
+			inorder(ptr->right);
+	}
+
+	void insert(person man)
+	{
+		if (!rootptr)
+		{
+			rootptr = makenode(man);
+		}
+		else //rootptr not NULL
+		{
+			put(rootptr, man); //rootptr is passed as argument, but a pointer copy is made
+		}
+	}
+
+	void put(nodeType* rootptr, person man)
+	{
+		if ((man.salary > rootptr->info.salary) && (rootptr->right == NULL))
+		{
+			rootptr->right = makenode(man);
+		}
+		else if ((man.salary <= rootptr->info.salary) && (rootptr->left == NULL))
+		{
+			rootptr->left = makenode(man);
+		}
+		else
+
+			if (man.salary <= rootptr->info.salary)
+				return put(rootptr->left, man);
+			else //bigger and some node already there
+				return put(rootptr->right, man);
+
+	}
+
+	nodeType* makenode(person man)
+	{
+		nodeType* temp = new nodeType;
+		temp->info = man;
+		temp->left = NULL;
+		temp->right = NULL;
+		return temp;
+	}
+
 };
 
 int main()
 {
-    tree oak ;
-    oak.insert(4);
-    oak.insert(5) ; 
-    oak.insert(2) ;
-    oak.insert(8) ;
-    oak.insert(10);
-    oak.insert(15);
-    
-    oak.printmax() ;
-    return 0;
+	string fname, lname;
+	tree oak;
+	ifstream myfile;
+	myfile.open("infile.txt");
+
+	person a = person();
+	myfile >> fname >> lname >> a.salary;
+	while (myfile)
+	{
+		a.name = fname + lname;
+		oak.insert(a);
+		myfile >> fname >> lname >> a.salary;
+	}
+
+	oak.inorder(oak.rootptr);
+
+	return 0;
 }
-
-
-/*4 
-2 
-5 
-8 
-*/
-
