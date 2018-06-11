@@ -1,0 +1,45 @@
+#include <iostream>
+using namespace std;
+
+class person
+{
+  public:
+    string name;
+    person* ptr;
+};
+
+int main() {
+  cout << "Hello World!\n";
+
+  person kishor;
+  kishor.name = "Kishor Subedi";
+  kishor.ptr = NULL;
+
+  cout << "Kishor object is located at address" << &kishor << endl ;
+ 
+
+  person ram;
+  ram.name = "Ram Dhakal";
+  ram.ptr = &kishor; 
+  cout << "ram object is located at address" << &ram << endl << endl;
+
+  kishor.ptr = &ram ;
+  cout << "Kishor's ptr has" << kishor.ptr << endl << endl;
+   cout << "Ram's ptr has" << ram.ptr << endl << endl;
+
+  *(kishor.ptr) = *(ram.ptr); //ram ma kishor override
+  cout << "Ram object is at" << &ram << "  but has name" << ram.name << "and has its own address in its ptr" << &ram << endl;   
+
+}
+/*
+Kishor object is located at address0x7ffd9778dce0
+ram object is located at address0x7ffd9778dcb0
+
+Kishor's ptr has0x7ffd9778dcb0
+
+Ram's ptr has0x7ffd9778dce0
+
+Ram object is at0x7ffd9778dcb0  but has nameKishor Subediand has its own address in its ptr0x7ffd9778dcb0
+   
+ 
+ */
