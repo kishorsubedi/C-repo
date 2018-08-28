@@ -1,0 +1,87 @@
+using namespace std;
+
+struct nodeType
+{
+    nodeType* left;
+    int data;
+    nodeType* right;
+};
+
+class bst
+{
+    public:
+        bst()
+        {
+            rootptr = NULL;
+        }
+
+        void insert(int value)
+        {
+            if(!rootptr)
+            {
+                rootptr = new nodeType;
+                rootptr -> data = value;
+                rootptr -> left = NULL;
+                rootptr -> right = NULL;
+            }
+            else{
+                nodeType* ptr = rootptr;
+                insertHelper(ptr, value);
+            } 
+        }
+
+        void insertHelper(nodeType* ptr, int value)
+        {
+            if((value <= ptr->data && ptr -> left == NULL) || (value > ptr->data && ptr -> right == NULL))
+            {
+                if(value <= ptr->data){
+                    
+                    ptr -> left = new nodeType;
+                    ptr -> left->data = value;
+                    ptr -> left -> left = NULL;
+                    ptr -> left ->right = NULL;
+                }
+                else{
+                    
+                    ptr -> right = new nodeType;
+                    ptr -> right->data = value;
+                    ptr -> right -> left = NULL;
+                    ptr -> right ->right = NULL;
+                }
+                return;
+            }
+            //insert
+            else
+            {
+                if(value <= ptr -> data)
+                    ptr = ptr -> left;
+                else
+                    ptr = ptr -> right;
+                insertHelper(ptr, value);
+                return;
+            }   
+        }
+
+        void print()
+        {
+            nodeType* x = rootptr;
+            printHelper(x);
+            return;
+        }
+        
+        void printHelper(nodeType* x)
+        {
+            
+            if(x-> left != NULL){
+                printHelper(x->left);  
+            }
+            cout << x->data << endl;
+            if(x-> right != NULL){
+                printHelper(x->right);  
+            }
+            return;
+        }
+
+    private:
+        nodeType* rootptr;
+};
