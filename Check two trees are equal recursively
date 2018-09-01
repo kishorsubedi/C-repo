@@ -1,0 +1,28 @@
+class Solution:
+    def isSameTree(self, p, q):
+        
+        if(p == None or q == None):
+            if(p == None and q == None):
+                return True 
+            else:
+                return False
+        else:
+            if(p.left != None and q.left != None):
+                if self.isSameTree(p.left, q.left) == False:
+                    return False 
+
+            if((p.left != None and q.left == None)or (p.left == None and q.left !=None)):
+                return False
+
+            if(p.val != q.val):
+                return False
+
+            if(p.right != None and q.right != None):
+                if self.isSameTree(p.right, q.right) == False:
+                    return False 
+            if((p.right != None and q.right == None)or (p.right == None and q.right !=None)):
+                return False
+
+            return True 
+    
+            
