@@ -1,0 +1,52 @@
+#include <iostream>
+using namespace std;
+
+class heap{
+    public:
+        int totalinserted = 0;
+        static const int CAPACITY = 10;
+        int arrays[CAPACITY];
+        int insertedorto_insert_index = 0;
+        bool insert(int num)
+        {
+            totalinserted += 1;
+            if (insertedorto_insert_index == CAPACITY)
+                return false;
+            else
+            {
+                int last_index = insertedorto_insert_index; //4
+                arrays[insertedorto_insert_index] = num;
+                int temp = insertedorto_insert_index;
+                int parentindex = (insertedorto_insert_index- 1)/2;
+
+                while(parentindex >= 0 && arrays[parentindex] > arrays[insertedorto_insert_index]){
+                    int temp = arrays[insertedorto_insert_index] ;
+                    arrays[insertedorto_insert_index] = arrays[parentindex];
+                    arrays[parentindex] = temp;
+                    insertedorto_insert_index = parentindex;
+                    parentindex = (insertedorto_insert_index- 1)/2;
+                }
+                insertedorto_insert_index = temp +1 ;
+                return true;
+            }
+        }
+        void printheap()
+        {
+            for(int i=0; i< totalinserted; i++)
+            {
+                cout << arrays[i] << endl;
+            }
+        }
+        int take_one_min();
+};
+
+int main()
+{
+    heap h = heap();
+    h.insert(4);
+    h.insert(5);
+    h.insert(2);
+    h.insert(7);
+    h.insert(3);
+    h.printheap();
+}
