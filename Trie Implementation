@@ -1,0 +1,74 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class node 
+{
+    public:
+        node(char input)
+        {
+            isEnd = false;
+            character = input;
+        }
+        char character;
+        bool isEnd;
+        node* children[26];
+};
+
+class trie
+{
+    public:
+        node* rootptr;
+        void insert(string word) //a
+        {
+            node* tempPtr = rootptr;
+            for(int i = 0; i< word.length(); i++)
+            {
+                char k = word[i];
+                int index = k - 'a';//25
+                if(tempPtr->children[index] == NULL){
+                    node* x = new node(k);
+                    tempPtr->children[index] = x;
+                }
+                tempPtr = tempPtr->children[index];
+            }
+            tempPtr->isEnd = true;
+        }
+        
+        bool search(string word)//abc
+        {
+            node* temp = rootptr;
+            int i = 0;
+            while(i < word.length()){
+                char k = word[i];
+                int index = k - 'a';
+                node* child = temp -> children[index];
+                if(child == NULL){
+                    return false;
+                }
+                if( i == word.length() - 1 && child->isEnd== false ){
+                    return false;
+                }
+                if(k != child->character){
+                     return false;
+                }
+                else 
+                    temp = child;
+                i += 1;
+            }
+            return true;
+        }
+
+        trie()
+        {
+            rootptr = new node(' ');
+        }
+};
+
+int main()
+{
+    trie t = trie();
+    t.insert("abc");
+    cout<< t.search("abc");
+    return 0;
+}
