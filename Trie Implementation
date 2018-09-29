@@ -35,6 +35,24 @@ class trie
             tempPtr->isEnd = true;
         }
         
+        void findAll()
+        {
+            node* temp = rootptr;
+            helper(temp, "");
+        }
+
+        void helper(node* temp, string s)
+        {
+            if(temp == NULL)
+                return;
+            if(temp->isEnd == true)
+                cout << s+temp->character << endl;
+            for(int i=0; i< 26; i++)
+            {
+                helper(temp->children[i], s+temp->character);
+            }
+        }
+
         bool search(string word)//abc
         {
             node* temp = rootptr;
@@ -68,7 +86,11 @@ class trie
 int main()
 {
     trie t = trie();
+    t.insert("a");
     t.insert("abc");
-    cout<< t.search("abc");
+   
+    t.insert("kishor");
+    t.insert("aki");
+    t.findAll();
     return 0;
 }
