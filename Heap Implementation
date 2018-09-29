@@ -26,7 +26,7 @@ class heap{
                     insertedorto_insert_index = parentindex;
                     parentindex = (insertedorto_insert_index- 1)/2;
                 }
-                insertedorto_insert_index = temp +1 ;
+                insertedorto_insert_index = totalinserted;
                 return true;
             }
         }
@@ -37,16 +37,42 @@ class heap{
                 cout << arrays[i] << endl;
             }
         }
-        int take_one_min();
+        int take_one_min(){ //totalinserted = 5, insertedorto_insert_index=4
+            int index = 0;
+            int returning_minimum = arrays[0];
+            arrays[0] = arrays[totalinserted-1];
+            totalinserted -= 1;
+            int lastindex = totalinserted -1;
+            
+            int childindex = (index *2)+1; //1
+
+            while(childindex <= lastindex &&  arrays[index] > arrays[childindex])
+            {
+                int temp = arrays[index];
+                arrays[index] = arrays[childindex];
+                arrays[childindex] = temp;
+
+                index = childindex;
+                childindex = (index *2)+1;
+            }
+
+            return returning_minimum;
+        }
 };
 
 int main()
 {
     heap h = heap();
-    h.insert(4);
     h.insert(5);
     h.insert(2);
+    h.insert(4);
     h.insert(7);
-    h.insert(3);
+    h.insert(9);
+    h.printheap();
+    cout << endl << endl;
+    h.take_one_min();
+    h.printheap();
+      cout << endl << endl;
+    h.take_one_min();
     h.printheap();
 }
