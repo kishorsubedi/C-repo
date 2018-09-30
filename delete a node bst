@@ -1,0 +1,22 @@
+void deletenode(nodeType* temp)
+        {
+            bool swap = false;
+            nodeType* store = temp;
+            if(temp->left != NULL && temp-> right != NULL)
+            {
+                nodeType* parent = temp;
+                nodeType* child = temp -> right ;
+                while( child -> left != NULL)
+                {
+                    swap = true;
+                    parent = child;
+                    child = child -> left;
+                }
+                
+                store-> data = child -> data;
+                if(swap == true)
+                    parent -> left = child -> right;
+                else 
+                    parent -> right = child -> right;
+            }
+        }
