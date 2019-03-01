@@ -33,6 +33,7 @@ void sigtstp_handler(int sig);
 void sigint_handler(int sig);
 void sigquit_handler(int sig);
 
+//void fgresume(int sig);
 void sigkill_handler(int sig);
 
 /*
@@ -81,7 +82,8 @@ int main(int argc, char **argv)
     Signal(SIGTTOU, SIG_IGN);
 
     Signal(SIGQUIT, sigquit_handler); 
-
+    //Signal(SIGUSR1, fgresume);
+    
     // Initialize the job list
     initjobs(job_list);
 
@@ -168,25 +170,48 @@ void eval(const char *cmdline)
             //this is an executable. run in foreground or background.
             if(parse_result == PARSELINE_FG){//run in foreground
                   ;
+                        //mask SIGINT SIGCHLD for child and parent both
+                         sigset_t mask;//mask set
+                        sigemptyset(&mask);//initialize the mask to empty set
+                        sigaddset(&mask, SIGINT);
+                        sigaddset(&mask, SIGCHLD);
+                        sigaddset(&mask, SIGTSTP);
+                        sigprocmask(SIG_BLOCK, &mask, NULL);
+                
                   int fgprocessid = Fork();
-                   
+                 
+                //suspend fgprocessid until addjob to the parent
+                 
                   if(fgprocessid == 0){//child process
+                      
+                      //sigset_t mask;//mask set
+                      //sigemptyset(&mask);//empty the mask
+                      //sigsuspend(&mask);
+                      
                     setpgid(0,0);
                     Signal(SIGINT, SIG_DFL);
                     Signal(SIGCHLD, SIG_DFL);
-                    //Signal(SIGSTP, SIG_DFL);
+                    Signal(SIGTSTP, SIG_DFL);
+                      sigprocmask(SIG_UNBLOCK, &mask, NULL);
                       
                     execve(token.argv[0], token.argv, environ);
                   }
                   else
-                  { 
+                  {                        
                       addjob(job_list, fgprocessid, FG, cmdline);
+                      //kill(fgprocessid, SIGUSR1);
                       
-                      waitpid(fgprocessid, &status, WUNTRACED); //FG process on termination is caught and released by the parent process right here.
+                      //unmask sigchld and sigint both 
+                      
+                      sigprocmask(SIG_UNBLOCK, &mask, NULL);
+                      //kill(fgprocessid, SIGCONT);
+                      int pid = waitpid(fgprocessid, &status, WUNTRACED); //FG process on termination is caught and released by the parent process right here.
                          //sigchild may be called, but by that time the process is already released from process table. so 
                       //printf("reaped the FG\n");
-                      deletejob(job_list, fgprocessid); 
-                      
+                      //printf("Reaped\n");
+                      //printf("\nIn the parent pid = %d\n", pid);
+                      if (pid != -1)
+                          deletejob(job_list, fgprocessid);
                       //printf("FG job ended");
                      //waitpid(fgprocessid, &status, WUNTRACED);  
                   }
@@ -206,7 +231,9 @@ void eval(const char *cmdline)
                   }
                   else
                   {
+                      
                     addjob(job_list, bgprocessid, BG, cmdline);
+                      
                     int job_id = pid2jid(job_list, bgprocessid);
                       
                     //char * argumentt = token.argv[0] ;
@@ -257,17 +284,25 @@ void eval(const char *cmdline)
 /* 
  * <What does sigchld_handler do?>
  */
+
+
 void sigchld_handler(int sig) 
 {
-    
+        //printf("handlercalledfirst\n");
+        sigset_t mask;//mask set
+        sigemptyset(&mask);//empty the mask
+        sigaddset(&mask, SIGINT);
+        sigaddset(&mask, SIGQUIT);
+        sigprocmask(SIG_BLOCK, &mask, NULL);
     //mask 
     int status;
     //pid_t pid = wait(&status);
-    int pid = waitpid(-1, &status, WNOHANG);
+    int pid = waitpid(-1, &status, WNOHANG|WUNTRACED);
+    //printf("In the sigchild with pid%d\n", pid);
     if(pid != -1){ //in the case of foreground job, deletejob is handled in the main process block. 
         deletejob(job_list, pid);
     }
-    
+     sigprocmask(SIG_UNBLOCK, &mask, NULL);
     //unmask
    
 }
@@ -276,7 +311,21 @@ void sigchld_handler(int sig)
  * <What does sigint_handler do?>
  */
 void sigint_handler(int sig) 
-{
+{    
+        sigset_t mask;//mask set
+        sigemptyset(&mask);//empty the mask
+        sigaddset(&mask, SIGCHLD);
+        sigaddset(&mask, SIGQUIT);
+        sigprocmask(SIG_BLOCK, &mask, NULL);
+    
+    //listjobs(job_list, STDOUT_FILENO);
+    //return;
+    
+    int childpid = fgpid(job_list);
+    //printf("%d\n", childpid);
+    //printf("%d\n", childpid);
+    //printf("%d\n", childpid);
+    //return;
     //mask 
     //
     //int childpid = fgpid(job_list);
@@ -284,7 +333,7 @@ void sigint_handler(int sig)
     //deletejob
     //unmask
     //printf("Shell got the ctrl C signal\n");
-    int childpid = fgpid(job_list);
+    //int childpid = fgpid(job_list);
     
     if(childpid != 0){
             //printf("About to kill the FG\n");
@@ -293,6 +342,7 @@ void sigint_handler(int sig)
             //parent has to reap it.
             printf("Job [1] (%d) terminated by signal %d\n", childpid, sig);
     }
+     sigprocmask(SIG_UNBLOCK, &mask, NULL);
     return;
 }
 
@@ -301,13 +351,19 @@ void sigint_handler(int sig)
  */
 void sigtstp_handler(int sig) 
 {
-    //mask 
-    //
-    //int childpid = fgpid(job_list);
-    //if not 0, theres a foreground job, update that job state. ;
-    //kill(-childpid, SIGSTP);
-    //unmask
-    printf("Ctrl Z signal received Sir. What shall I do?\n");
+    //mask other signals while sigstop is being handled
+        sigset_t mask;//mask set
+        sigemptyset(&mask);//empty the mask
+        sigaddset(&mask, SIGCHLD);
+        sigaddset(&mask, SIGQUIT);
+        sigprocmask(SIG_BLOCK, &mask, NULL);
+    
+    int childpid = fgpid(job_list);
+    kill(-childpid, SIGTSTP);
+    printf("Job [1] (%d) stopped by signal %d\n", childpid, sig);
+    //update child's job state from job list
+
+    sigprocmask(SIG_UNBLOCK, &mask, NULL);//unmask blocked signals
     return;
 }
 
