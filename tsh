@@ -163,10 +163,11 @@ void eval(const char *cmdline)
     {
         return;
     }
-    
+    //printf("Hey buitling %d \n", token.builtin);
     switch(token.builtin) {
 
        case BUILTIN_NONE  :
+            //printf("%s %s \n", token.argv[0], token.argv[1]);
             //this is an executable. run in foreground or background.
             if(parse_result == PARSELINE_FG){//run in foreground
                   ;
@@ -188,31 +189,60 @@ void eval(const char *cmdline)
                       //sigemptyset(&mask);//empty the mask
                       //sigsuspend(&mask);
                       
-                    setpgid(0,0);
+                    Setpgid(0,0);
                     Signal(SIGINT, SIG_DFL);
                     Signal(SIGCHLD, SIG_DFL);
                     Signal(SIGTSTP, SIG_DFL);
-                      sigprocmask(SIG_UNBLOCK, &mask, NULL);
+                    Sigprocmask(SIG_UNBLOCK, &mask, NULL);
                       
+                     //printf("Executing child\n");
                     execve(token.argv[0], token.argv, environ);
                   }
-                  else
+                  else if (fgprocessid > 0)
                   {                        
                       addjob(job_list, fgprocessid, FG, cmdline);
                       //kill(fgprocessid, SIGUSR1);
-                      
                       //unmask sigchld and sigint both 
                       
-                      sigprocmask(SIG_UNBLOCK, &mask, NULL);
+                      sigprocmask(SIG_UNBLOCK, &mask, NULL); //can only get sigchld sigint sigstp now
                       //kill(fgprocessid, SIGCONT);
+                      //printf("parent waiting for child to finish\n");
+                      // while (fg_job_running){
+                      //     suspend for CHLD, STP, INT
+                      // }
+                      // fg_job_running = true;
+                      //int pid =
                       int pid = waitpid(fgprocessid, &status, WUNTRACED); //FG process on termination is caught and released by the parent process right here.
                          //sigchild may be called, but by that time the process is already released from process table. so 
                       //printf("reaped the FG\n");
-                      //printf("Reaped\n");
+                      //printf("Reaped %d\n", pid);
                       //printf("\nIn the parent pid = %d\n", pid);
-                      if (pid != -1)
-                          deletejob(job_list, fgprocessid);
-                      //printf("FG job ended");
+                       
+                      if(pid == -1){//child reaped in handler. deleted from job list. so do nothing
+                          break;
+                      }
+                      
+                      if(WIFEXITED(status) !=0){ //if child was terminated normally
+                          //printf("terminated normally, so deleting from job list\n");
+                          deletejob(job_list, fgprocessid);          
+                          break;
+                      }
+                      
+                      if(WIFSTOPPED(status) !=0){ //if child was stopped 
+                          //deletejob(job_list, fgprocessid);
+                          //addjob(job_list, fgprocessid, ST, cmdline);
+                          //printf("pid %d state changed in parent block.\n", fgprocessid);
+                          struct job_t* curr_job = getjobpid(job_list, fgprocessid);
+                          curr_job->state = ST;
+                          break;
+                      }
+                      //printf("I am still in the parent\n");
+                          
+                      //printf("Parent waited on pid  %d and gained back control\n", pid);
+                      
+                      //if (pid != -1)//If parent actually reaped the child(In the case of FG)
+                          //deletejob(job_list, fgprocessid);
+                      //printf("%d pid deleted from job_list\n");
                      //waitpid(fgprocessid, &status, WUNTRACED);  
                   }
 
@@ -268,7 +298,7 @@ void eval(const char *cmdline)
           break; /* optional */
 
        case BUILTIN_JOBS :
-          //printf("Kishor THIS IS JOBS");
+          //printf("Listing now\n");
           listjobs(job_list, STDOUT_FILENO);
           break; /* optional */
     }
@@ -286,9 +316,14 @@ void eval(const char *cmdline)
  */
 
 
-void sigchld_handler(int sig) 
+void sigchld_handler(int sig) //gets called if child is stopped or terminated
 {
-        //printf("handlercalledfirst\n");
+   
+    // waitpid(-1, &status, WNOHANG|WUNTRACED) --> any process;
+    // waitpid(-1, &status, WNOHANG|WUNTRACED) --> any process;
+    // waitpid(-1, &status, WNOHANG|WUNTRACED) --> any process;
+    // waitpid(-1, &status, WNOHANG|WUNTRACED) --> any process;
+        //printf("sigchild handler called\n");
         sigset_t mask;//mask set
         sigemptyset(&mask);//empty the mask
         sigaddset(&mask, SIGINT);
@@ -297,12 +332,19 @@ void sigchld_handler(int sig)
     //mask 
     int status;
     //pid_t pid = wait(&status);
-    int pid = waitpid(-1, &status, WNOHANG|WUNTRACED);
+    int pid = waitpid(-1, &status, WNOHANG);
+     //printf("SIGCHLD called for pid %d\n", pid);
+    
+    //printf(" Reaped childpid %d\n", pid);
+    //printf("%d\n", pid);
     //printf("In the sigchild with pid%d\n", pid);
-    if(pid != -1){ //in the case of foreground job, deletejob is handled in the main process block. 
-        deletejob(job_list, pid);
+    
+    //printf("In the sigchld handler for %d\n", pid);
+    if(pid != -1 && pid != 0){ //-1 if child is reaped in parent, 0 if child was stopped
+        deletejob(job_list, pid);//gets called in BG job reaping process
     }
-     sigprocmask(SIG_UNBLOCK, &mask, NULL);
+    
+    sigprocmask(SIG_UNBLOCK, &mask, NULL);
     //unmask
    
 }
@@ -351,18 +393,27 @@ void sigint_handler(int sig)
  */
 void sigtstp_handler(int sig) 
 {
+    //printf("SIGSTP handler called\n");
     //mask other signals while sigstop is being handled
         sigset_t mask;//mask set
         sigemptyset(&mask);//empty the mask
         sigaddset(&mask, SIGCHLD);
         sigaddset(&mask, SIGQUIT);
+        sigaddset(&mask, SIGTSTP);
         sigprocmask(SIG_BLOCK, &mask, NULL);
     
     int childpid = fgpid(job_list);
-    kill(-childpid, SIGTSTP);
-    printf("Job [1] (%d) stopped by signal %d\n", childpid, sig);
+    int childjid = pid2jid(job_list, childpid);
+    //printf("This child is in FG %d\n", childpid);
+    if (childpid != 0){
+        kill(-childpid, SIGTSTP);
+        //printf("SIGTSTP signal sent to %d group\n", childpid);
+    }
+    printf("Job [%d] (%d) stopped by signal %d\n", childjid, childpid, sig);
     //update child's job state from job list
-
+    
+    //listjobs(job_list, STDOUT_FILENO);
+    
     sigprocmask(SIG_UNBLOCK, &mask, NULL);//unmask blocked signals
     return;
 }
