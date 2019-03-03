@@ -350,6 +350,7 @@ void sigchld_handler(int sig) //gets called if child is stopped or terminated
    
 }
 
+
 /* 
  * <What does sigint_handler do?>
  */
