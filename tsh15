@@ -6,6 +6,7 @@
  */
 
 #include "tsh_helper.h"
+#include <stdlib.h>
 
 /*
  * If DEBUG is defined, enable contracts and printing on dbg_printf.
@@ -201,23 +202,10 @@ void eval(const char *cmdline)
                   else if (fgprocessid > 0)
                   {                        
                       addjob(job_list, fgprocessid, FG, cmdline);
-                      //kill(fgprocessid, SIGUSR1);
-                      //unmask sigchld and sigint both 
-                      
                       sigprocmask(SIG_UNBLOCK, &mask, NULL); //can only get sigchld sigint sigstp now
-                      //kill(fgprocessid, SIGCONT);
-                      //printf("parent waiting for child to finish\n");
-                      // while (fg_job_running){
-                      //     suspend for CHLD, STP, INT
-                      // }
-                      // fg_job_running = true;
-                      //int pid =
+
                       int pid = waitpid(fgprocessid, &status, WUNTRACED); //FG process on termination is caught and released by the parent process right here.
-                         //sigchild may be called, but by that time the process is already released from process table. so 
-                      //printf("reaped the FG\n");
-                      //printf("Reaped %d\n", pid);
-                      //printf("In the parent pid = %d\n", pid);
-                       //printf("parent block child pid %d \n", pid);
+
                       
                       if(pid == -1){//child reaped in handler. deleted from job list. so do nothing
                           break;
@@ -226,9 +214,6 @@ void eval(const char *cmdline)
                       
                       if(WIFSTOPPED(status) !=0){ //if child was stopped 
                           printf("Job [%d] (%d) stopped by signal %d\n", pid2jid(job_list, pid), pid, 20);
-                          //deletejob(job_list, fgprocessid);
-                          //addjob(job_list, fgprocessid, ST, cmdline);
-                          //printf("pid %d state changed in parent block.\n", fgprocessid);
                           struct job_t* curr_job = getjobpid(job_list, fgprocessid);
                           curr_job->state = ST;
                           break;
@@ -297,8 +282,30 @@ void eval(const char *cmdline)
           break; /* optional */
 
        case BUILTIN_BG :
-          printf("Kishor BG THIS");
-          break; /* optional */
+            ;
+            char *pidorjid = token.argv[1];
+            char * charjid;
+            char * charpid;
+            int intpid;
+            
+            if(pidorjid[0] == 37){//JID
+                charjid = &pidorjid[1];
+                int intjid = atoi(charjid);
+                struct job_t* job= getjobjid(job_list, intjid); 
+                intpid = job->pid;
+            }
+            else{//PID
+                charpid = &pidorjid[0];
+                intpid = atoi(charpid);
+            }
+            kill(-intpid, SIGCONT); //Send SIGCONT to stopped pid
+            
+            struct job_t* curr_job = getjobpid(job_list, intpid);//Change state to BG
+            curr_job->state = BG;
+            
+            printf("[%d] (%d) %s \n", curr_job->jid, curr_job->pid, curr_job->cmdline);
+           
+            break; /* optional */
 
        case BUILTIN_JOBS :
           //printf("Listing now\n");
@@ -349,7 +356,6 @@ void sigchld_handler(int sig) //gets called if child is stopped or terminated
     //unmask
    
 }
-
 
 /* 
  * <What does sigint_handler do?>
