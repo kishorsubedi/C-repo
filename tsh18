@@ -1,0 +1,461 @@
+
+/* 
+ * tsh - A tiny shell program with job control
+ * <The line above is not a sufficient documentation.
+ *  You will need to write your program documentation.>
+ */
+
+#include "tsh_helper.h"
+#include <stdlib.h>
+
+/*
+ * If DEBUG is defined, enable contracts and printing on dbg_printf.
+ */
+#ifdef DEBUG
+/* When debugging is enabled, these form aliases to useful functions */
+#define dbg_printf(...) printf(__VA_ARGS__)
+#define dbg_requires(...) assert(__VA_ARGS__)
+#define dbg_assert(...) assert(__VA_ARGS__)
+#define dbg_ensures(...) assert(__VA_ARGS__)
+#else
+/* When debugging is disabled, no code gets generated for these */
+#define dbg_printf(...)
+#define dbg_requires(...)
+#define dbg_assert(...)
+#define dbg_ensures(...)
+#endif
+
+
+/* Function prototypes */
+void eval(const char *cmdline);
+
+void sigchld_handler(int sig);
+void sigtstp_handler(int sig);
+void sigint_handler(int sig);
+void sigquit_handler(int sig);
+
+void sigterm_handler(int sig);
+void sigkill_handler(int sig);
+
+/*
+ * <Write main's function header documentation. What does main do?>
+ * "Each function should be prefaced with a comment describing the purpose
+ *  of the function (in a sentence or two), the function's arguments and
+ *  return value, any error cases that are relevant to the caller,
+ *  any pertinent side effects, and any assumptions that the function makes."
+ */
+int main(int argc, char **argv) 
+{
+    char c;
+    char cmdline[MAXLINE_TSH];  // Cmdline for fgets
+    bool emit_prompt = true;    // Emit prompt (default)
+
+    // Redirect stderr to stdout (so that driver will get all output
+    // on the pipe connected to stdout)
+    Dup2(STDOUT_FILENO, STDERR_FILENO);
+
+    // Parse the command line
+    while ((c = getopt(argc, argv, "hvp")) != EOF)
+    {
+        switch (c)
+        {
+        case 'h':                   // Prints help message
+            usage();
+            break;
+        case 'v':                   // Emits additional diagnostic info
+            verbose = true;
+            break;
+        case 'p':                   // Disables prompt printing
+            emit_prompt = false;  
+            break;
+        default:
+            usage();
+        }
+    }
+
+    // Install the signal handlers
+    signal(SIGINT,  sigint_handler);   // Handles ctrl-c
+    Signal(SIGTSTP, sigtstp_handler);  // Handles ctrl-z
+    signal(SIGCHLD, sigchld_handler);  // Handles terminated or stopped child
+    signal(SIGKILL, sigkill_handler);
+    
+    Signal(SIGTTIN, SIG_IGN);
+    Signal(SIGTTOU, SIG_IGN);
+
+    Signal(SIGQUIT, sigquit_handler); 
+    Signal(SIGTERM, sigterm_handler);
+    
+    // Initialize the job list
+    initjobs(job_list);
+
+    // Execute the shell's read/eval loop
+    while (true)
+    {
+        if (emit_prompt)
+        {
+            printf("%s", prompt);
+            fflush(stdout);
+        }
+
+        if ((fgets(cmdline, MAXLINE_TSH, stdin) == NULL) && ferror(stdin))
+        {
+            app_error("fgets error");
+        }
+
+        if (feof(stdin))
+        { 
+            // End of file (ctrl-d)
+            printf ("\n");
+            fflush(stdout);
+            fflush(stderr);
+            return 0;
+        }
+        
+        // Remove the trailing newline
+        cmdline[strlen(cmdline)-1] = '\0';
+        
+        // Evaluate the command line
+        eval(cmdline);
+        fflush(stdout);
+    } 
+    
+    return -1; // control never reaches here
+}
+
+
+/* Handy guide for eval:
+ *
+ * If the user has requested a built-in command (quit, jobs, bg or fg),
+ * then execute it immediately. Otherwise, fork a child process and
+ * run the job in the context of the child. If the job is running in
+ * the foreground, wait for it to terminate and then return.
+ * Note: each child process must have a unique process group ID so that our
+ * background children don't receive SIGINT (SIGTSTP) from the kernel
+ * when we type ctrl-c (ctrl-z) at the keyboard.
+ */
+
+/* 
+ * <What does eval do?>
+ */
+void eval(const char *cmdline) 
+{
+    
+    int status;
+    //if builtin, run it 
+    //else, run the executable in the child process 
+    
+    parseline_return parse_result;     
+    struct cmdline_tokens token;
+    
+    //sigset_t ourmask;
+    //Sigemptyset(&ourmask);
+
+    // Parse command line
+    parse_result = parseline(cmdline, &token);
+    //printf("%s", token.argv[1]);
+    //printf("%d", token.builtin)
+    
+    //printf("%s", token.text);
+    
+    //printf("%s %s %s", token.argv[0],token.argv[1], token.argv[2] );
+    //
+    //
+    if (parse_result == PARSELINE_ERROR || parse_result == PARSELINE_EMPTY)
+    {
+        return;
+    }
+    //printf("Hey buitling %d \n", token.builtin);
+    switch(token.builtin) {
+
+       case BUILTIN_NONE  :
+            //printf("%s %s \n", token.argv[0], token.argv[1]);
+            //this is an executable. run in foreground or background.
+            if(parse_result == PARSELINE_FG){//run in foreground
+                  ;
+                        //mask SIGINT SIGCHLD for child and parent both
+                         sigset_t mask;//mask set
+                        sigemptyset(&mask);//initialize the mask to empty set
+                        sigaddset(&mask, SIGINT);
+                        sigaddset(&mask, SIGCHLD);
+                        sigaddset(&mask, SIGTSTP);
+                        sigprocmask(SIG_BLOCK, &mask, NULL);
+                
+                  int fgprocessid = Fork();
+                 
+                //suspend fgprocessid until addjob to the parent
+                 
+                  if(fgprocessid == 0){//child process
+                      
+                      //sigset_t mask;//mask set
+                      //sigemptyset(&mask);//empty the mask
+                      //sigsuspend(&mask);
+                      
+                    Setpgid(0,0);
+                    Signal(SIGINT, SIG_DFL);
+                    Signal(SIGCHLD, SIG_DFL);
+                    Signal(SIGTSTP, SIG_DFL);
+                    Sigprocmask(SIG_UNBLOCK, &mask, NULL);
+                      
+                     //printf("Executing child\n");
+                    execve(token.argv[0], token.argv, environ);
+                  }
+                  else if (fgprocessid > 0)
+                  {                        
+                      addjob(job_list, fgprocessid, FG, cmdline);
+                      sigprocmask(SIG_UNBLOCK, &mask, NULL); //can only get sigchld sigint sigstp now
+
+                      int pid = waitpid(fgprocessid, &status, WUNTRACED); //FG process on termination is caught and released by the parent process right here.
+
+                      
+                      if(pid == -1){//child reaped in handler. deleted from job list. so do nothing
+                          break;
+                      }
+                      //printf("%d\n", WTERMSIG(status));
+                      
+                      if(WIFSTOPPED(status) !=0){ //if child was stopped 
+                          printf("Job [%d] (%d) stopped by signal %d\n", pid2jid(job_list, pid), pid, 20);
+                          struct job_t* curr_job = getjobpid(job_list, fgprocessid);
+                          curr_job->state = ST;
+                          break;
+                      }
+                      if(WIFSIGNALED(status) != 0){//sigchld called because child died of a signal
+                            printf("Job [%d] (%d) terminated by signal %d\n", pid2jid(job_list, pid), pid, WTERMSIG(status));
+                       }
+                      
+                      deletejob(job_list, fgprocessid);          
+                      break;
+                      //printf("Neither stopped nor terminated normally\n");
+                          
+                      //printf("Parent waited on pid  %d and gained back control\n", pid);
+                      
+                      //if (pid != -1)//If parent actually reaped the child(In the case of FG)
+                          //deletejob(job_list, fgprocessid);
+                      //printf("%d pid deleted from job_list\n");
+                     //waitpid(fgprocessid, &status, WUNTRACED);  
+                  }
+
+              break;  
+            }
+            else{//run in background
+                  
+                  int bgprocessid = Fork();
+
+                  if(bgprocessid == 0){//child process
+                    setpgid(0,0);
+                    Signal(SIGINT, SIG_DFL);
+                    Signal(SIGCHLD, SIG_DFL);
+                    //Signal(SIGSTP, SIG_DFL);
+                    execve(token.argv[0], token.argv, environ);
+                  }
+                  else
+                  {
+                      
+                    addjob(job_list, bgprocessid, BG, cmdline);
+                      
+                    int job_id = pid2jid(job_list, bgprocessid);
+                      
+                    //char * argumentt = token.argv[0] ;
+                    printf("[%d] (%d) ", job_id, bgprocessid);
+                    int i = 0;
+                      while(i < token.argc){
+                          printf("%s", token.argv[i]) ;
+                          printf(" ");
+                          i +=1 ;
+                      }
+                      printf("&\n");
+                   
+                    //listjobs(job_list, STDOUT_FILENO);
+                    //wait for this bg process to finish
+                    
+                  }
+                
+                break;
+            }
+            
+       case BUILTIN_QUIT  ://quit has to not terminate bg job
+          printf("Kishor QUIT THIS");
+          raise(SIGKILL);
+          break; /* optional */
+
+       case BUILTIN_FG :
+            ;
+          //printf("Kishor FG THIS");
+            char *pdorjd = token.argv[1];
+            char * charjd;
+            char * charpd;
+            int intpd;
+            
+            if(pdorjd[0] == 37){//JID
+                charjd = &pdorjd[1];
+                int intjd = atoi(charjd);
+                struct job_t* job= getjobjid(job_list, intjd); 
+                intpd = job->pid;
+            }
+            else{//PID
+                charpd = &pdorjd[0];
+                intpd = atoi(charpd);
+            }
+            
+            kill(-intpd, SIGCONT); //Send SIGCONT to stopped pid
+            struct job_t* cur_job = getjobpid(job_list, intpd);//Change state to FG
+            cur_job->state = FG;
+            
+            waitpid(intpd, &status, WUNTRACED);
+            deletejob(job_list, intpd);
+            
+            break; /* optional */
+
+       case BUILTIN_BG :
+            ;
+            char *pidorjid = token.argv[1];
+            char * charjid;
+            char * charpid;
+            int intpid;
+            
+            if(pidorjid[0] == 37){//JID
+                charjid = &pidorjid[1];
+                int intjid = atoi(charjid);
+                struct job_t* job= getjobjid(job_list, intjid); 
+                intpid = job->pid;
+            }
+            else{//PID
+                charpid = &pidorjid[0];
+                intpid = atoi(charpid);
+            }
+            
+            kill(-intpid, SIGCONT); //Send SIGCONT to stopped pid
+            struct job_t* curr_job = getjobpid(job_list, intpid);//Change state to BG
+            curr_job->state = BG;
+            printf("[%d] (%d) %s \n", curr_job->jid, curr_job->pid, curr_job->cmdline);
+
+            break; /* optional */
+
+       case BUILTIN_JOBS :
+          //printf("Listing now\n");
+          listjobs(job_list, STDOUT_FILENO);
+          break; /* optional */
+    }
+    
+    //My code goes here.
+    return;
+}
+
+/*****************
+ * Signal handlers
+ *****************/
+
+/* 
+ * <What does sigchld_handler do?>
+ */
+
+
+void sigchld_handler(int sig) //gets called if child is stopped or terminated
+{
+   
+    // waitpid(-1, &status, WNOHANG|WUNTRACED) --> any process;
+    // waitpid(-1, &status, WNOHANG|WUNTRACED) --> any process;
+    // waitpid(-1, &status, WNOHANG|WUNTRACED) --> any process;
+    // waitpid(-1, &status, WNOHANG|WUNTRACED) --> any process;
+        //printf("sigchild handler called\n");
+        sigset_t mask;//mask set
+        sigemptyset(&mask);//empty the mask
+        sigaddset(&mask, SIGINT);
+        sigaddset(&mask, SIGQUIT);
+        sigprocmask(SIG_BLOCK, &mask, NULL);
+    //mask 
+    int status;
+    //pid_t pid = wait(&status);
+    int pid = waitpid(-1, &status, WNOHANG);
+    //printf("SIGCHLD handler %d \n", pid);
+    if(pid != -1 && pid != 0){ //-1 if child is reaped in parent, 0 if child was stopped
+        if(WIFSIGNALED(status) != 0){//sigchld called because child died of a signal
+            printf("Job [%d] (%d) terminated by signal %d\n", pid2jid(job_list,pid), pid, WTERMSIG(status));
+            
+        }
+        deletejob(job_list, pid);//gets called in BG job reaping process  
+    }
+    
+    sigprocmask(SIG_UNBLOCK, &mask, NULL);
+    //unmask
+   
+}
+
+/* 
+ * <What does sigint_handler do?>
+ */
+void sigint_handler(int sig) 
+{    
+        sigset_t mask;//mask set
+        sigemptyset(&mask);//empty the mask
+        sigaddset(&mask, SIGCHLD);
+        sigaddset(&mask, SIGQUIT);
+        sigprocmask(SIG_BLOCK, &mask, NULL);
+    
+    //listjobs(job_list, STDOUT_FILENO);
+    //return;
+    
+    int childpid = fgpid(job_list);
+    //printf("%d\n", childpid);
+    //printf("%d\n", childpid);
+    //printf("%d\n", childpid);
+    //return;
+    //mask 
+    //
+    //int childpid = fgpid(job_list);
+    //if not 0, kill(-childpid, SIGINT);
+    //deletejob
+    //unmask
+    //printf("Shell got the ctrl C signal\n");
+    //int childpid = fgpid(job_list);
+    
+    if(childpid != 0){
+            //printf("About to kill the FG\n");
+            kill(-childpid, SIGINT);
+            //printf("KILLED FG\n");
+            //parent has to reap it.
+            //printf("Job [1] (%d) terminated by signal %d\n", childpid, sig);
+    }
+     sigprocmask(SIG_UNBLOCK, &mask, NULL);
+    return;
+}
+
+/*
+ * <What does sigtstp_handler do?>
+ */
+void sigtstp_handler(int sig) 
+{
+    //printf("SIGSTP handler called\n");
+    //mask other signals while sigstop is being handled
+        sigset_t mask;//mask set
+        sigemptyset(&mask);//empty the mask
+        sigaddset(&mask, SIGCHLD);
+        sigaddset(&mask, SIGQUIT);
+        sigaddset(&mask, SIGTSTP);
+        sigprocmask(SIG_BLOCK, &mask, NULL);
+    
+    int childpid = fgpid(job_list);
+    //int childjid = pid2jid(job_list, childpid);
+    //printf("This child is in FG %d\n", childpid);
+    if (childpid != 0){
+        kill(-childpid, SIGTSTP);
+        //printf("SIGTSTP signal sent to %d group\n", childpid);
+    }
+    //printf("Job [%d] (%d) stopped by signal %d\n", childjid, childpid, sig);
+    //update child's job state from job list
+    
+    //listjobs(job_list, STDOUT_FILENO);
+    
+    sigprocmask(SIG_UNBLOCK, &mask, NULL);//unmask blocked signals
+    return;
+}
+
+void sigkill_handler(int sig)
+{
+    //printf("KIlled it ");
+    return;
+}
+
+void sigterm_handler(int sig){
+    printf("Sigterm received\n");
+    return;
+}
