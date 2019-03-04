@@ -38,6 +38,7 @@ void sigquit_handler(int sig);
 void sigterm_handler(int sig);
 void sigkill_handler(int sig);
 
+int pidparsebgfg(struct cmdline_tokens );
 /*
  * <Write main's function header documentation. What does main do?>
  * "Each function should be prefaced with a comment describing the purpose
@@ -248,36 +249,16 @@ void eval(const char *cmdline)
 
        case BUILTIN_FG :
             ;
-          //get the pid to be brought to FG
-            char *pdorjd = token.argv[1];
-            char * charjd;
-            char * charpd;
-            int intpd;
-            
-            if(pdorjd[0] == 37){//JID
-                charjd = &pdorjd[1];
-                int intjd = atoi(charjd);
-                struct job_t* job= getjobjid(job_list, intjd); 
-                if(job == NULL){
-                    printf("Supplied pid/jid not found \n");
-                    return;
-                }
-                intpd = job->pid;
-            }
-            else{//PID
-                charpd = &pdorjd[0];
-                intpd = atoi(charpd);
-            }
-            struct job_t* cur_job = getjobpid(job_list, intpd);
+            int intpd = pidparsebgfg(token); //parse pid from cmdline
+            struct job_t *cur_job = getjobpid(job_list, intpd);
             if(cur_job == NULL){
                 printf("Supplied pid/jid not found \n");
                 return;
-            }
+            }  
             //Send SIGCONT to stopped pid
             kill(-intpd, SIGCONT); 
             
             //Change state to FG
-            cur_job = getjobpid(job_list, intpd);
             cur_job->state = FG;
             
             //Have to wait for the pid to finish and delete it from job list
@@ -289,33 +270,13 @@ void eval(const char *cmdline)
        case BUILTIN_BG :
             ;
             //get the pid to run in BG
-            char *pidorjid = token.argv[1];
-            char * charjid;
-            char * charpid;
-            int intpid;
-            
-            if(pidorjid[0] == 37){//JID
-                charjid = &pidorjid[1];
-                int intjid = atoi(charjid);
-                struct job_t* job= getjobjid(job_list, intjid); 
-                if(job == NULL){
-                    printf("Supplied pid/jid not found \n");
-                    return;
-                }
-                intpid = job->pid;
-            }
-            else{//PID
-                charpid = &pidorjid[0];
-                intpid = atoi(charpid);
-            }
-            //Check if intpid is in job_list
-
+            int intpid = pidparsebgfg(token);
             struct job_t* curr_job = getjobpid(job_list, intpid);
             if(curr_job == NULL){
                 printf("Supplied pid/jid not found \n");
                 return;
             }
-            //printf("%d \n", getjobpid(job_list, intpid));
+            //Check if intpid is in job_list
             
             //Send SIGCONT to stopped pid
             kill(-intpid, SIGCONT); 
@@ -344,6 +305,28 @@ void eval(const char *cmdline)
  * <What does sigchld_handler do?>
  */
 
+int pidparsebgfg(struct cmdline_tokens token){
+
+            char *pidorjid = token.argv[1];
+            char * charjid;
+            char * charpid;
+            int intpid;
+            
+            if(pidorjid[0] == 37){//JID
+                charjid = &pidorjid[1];
+                int intjid = atoi(charjid);
+                struct job_t* job= getjobjid(job_list, intjid); 
+                if(job == NULL){
+                    return -1;
+                }
+                intpid = job->pid;
+            }
+            else{//PID
+                charpid = &pidorjid[0];
+                intpid = atoi(charpid);
+            }
+            return intpid;
+}
 
 void sigchld_handler(int sig) //gets called if child is stopped or terminated
 {
