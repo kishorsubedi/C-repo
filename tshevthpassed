@@ -184,7 +184,6 @@ void eval(const char *cmdline)
 
                       int pid = waitpid(fgprocessid, &status, WUNTRACED); //FG process on termination is caught and released by the parent process right here.
 
-                      
                       if(pid == -1){//child reaped in handler. deleted from job list. so do nothing
                           break;
                       }
@@ -200,7 +199,11 @@ void eval(const char *cmdline)
                             printf("Job [%d] (%d) terminated by signal %d\n", pid2jid(job_list, pid), pid, WTERMSIG(status));
                        }
                       
-                      deletejob(job_list, fgprocessid);          
+                      struct job_t *job = getjobpid(job_list, fgprocessid);
+                      if(job != NULL){
+                          deletejob(job_list, fgprocessid);    
+                      }
+                       
                       break; 
                   }
 
@@ -255,18 +258,26 @@ void eval(const char *cmdline)
                 charjd = &pdorjd[1];
                 int intjd = atoi(charjd);
                 struct job_t* job= getjobjid(job_list, intjd); 
+                if(job == NULL){
+                    printf("Supplied pid/jid not found \n");
+                    return;
+                }
                 intpd = job->pid;
             }
             else{//PID
                 charpd = &pdorjd[0];
                 intpd = atoi(charpd);
             }
-            
+            struct job_t* cur_job = getjobpid(job_list, intpd);
+            if(cur_job == NULL){
+                printf("Supplied pid/jid not found \n");
+                return;
+            }
             //Send SIGCONT to stopped pid
             kill(-intpd, SIGCONT); 
             
             //Change state to FG
-            struct job_t* cur_job = getjobpid(job_list, intpd);
+            cur_job = getjobpid(job_list, intpd);
             cur_job->state = FG;
             
             //Have to wait for the pid to finish and delete it from job list
@@ -287,17 +298,29 @@ void eval(const char *cmdline)
                 charjid = &pidorjid[1];
                 int intjid = atoi(charjid);
                 struct job_t* job= getjobjid(job_list, intjid); 
+                if(job == NULL){
+                    printf("Supplied pid/jid not found \n");
+                    return;
+                }
                 intpid = job->pid;
             }
             else{//PID
                 charpid = &pidorjid[0];
                 intpid = atoi(charpid);
             }
+            //Check if intpid is in job_list
+
+            struct job_t* curr_job = getjobpid(job_list, intpid);
+            if(curr_job == NULL){
+                printf("Supplied pid/jid not found \n");
+                return;
+            }
+            //printf("%d \n", getjobpid(job_list, intpid));
+            
             //Send SIGCONT to stopped pid
             kill(-intpid, SIGCONT); 
             
             //Change child state in job list to BG 
-            struct job_t* curr_job = getjobpid(job_list, intpid);
             curr_job->state = BG;
             printf("[%d] (%d) %s \n", curr_job->jid, curr_job->pid, curr_job->cmdline);
             //Asynchronous so job deleted in SIGCHLD handler when it finishes running
@@ -337,7 +360,10 @@ void sigchld_handler(int sig) //gets called if child is stopped or terminated
             printf("Job [%d] (%d) terminated by signal %d\n", pid2jid(job_list,pid), pid, WTERMSIG(status));
             
         }
-        deletejob(job_list, pid);//gets called in BG job reaping process  
+        struct job_t *job = getjobpid(job_list, pid);
+          if(job != NULL){
+              deletejob(job_list, pid);    
+          }
     }
     
     sigprocmask(SIG_UNBLOCK, &mask, NULL);
