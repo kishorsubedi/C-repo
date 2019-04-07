@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <string.h>
+
+void fun();
+
+int main(int argc, char *argv[]) { 
+
+    printf("hello executable is running if this printed\n");
+    int i = 1;
+    for(; i < argc; i++){
+        if(strcmp(argv[i], "-i") == 0){
+            int times = atoi(argv[i+1]);
+            int j = 0;
+            for(; j< times; j++){
+                fun();
+            }
+        }
+        
+    }
+    return 0;
+}
+
+void fun(){
+    printf("Hello Kishor \n");
+}
